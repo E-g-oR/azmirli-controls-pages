@@ -4,6 +4,7 @@ import App from './app'
 import './index.css'
 import CssBaseline from '@mui/material/CssBaseline';
 import {createTheme, ThemeProvider} from "@mui/material";
+import {BrowserRouter} from "react-router-dom";
 
 const theme = createTheme({
     palette: {
@@ -22,17 +23,30 @@ const theme = createTheme({
         background: {
             paper: "#F7F7F6",
             default: "#fff"
+        },
+    },
+    components: {
+        MuiListItemButton: {
+            defaultProps: {},
+            styleOverrides: {}
+        },
+        MuiTouchRipple: {
+            defaultProps: {
+                color: "red"
+            }
         }
+
     }
 })
 
 const root = document.getElementById("root")
 root && ReactDOM.createRoot(root).render(
     <React.StrictMode>
-        <ThemeProvider theme={theme}>
-            <CssBaseline/>
-            <App/>
-        </ThemeProvider>
-
+        <BrowserRouter>
+            <ThemeProvider theme={theme}>
+                <CssBaseline/>
+                <App/>
+            </ThemeProvider>
+        </BrowserRouter>
     </React.StrictMode>
 )

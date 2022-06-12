@@ -1,8 +1,9 @@
 import {FC} from 'react'
 import './App.css'
-import {Box} from "@mui/material";
+import {Box, Toolbar} from "@mui/material";
 import SideMenu from "./components/library/side-menu";
 import AppBar from "./components/library/app-bar";
+import Root from "./root";
 
 const App: FC = () => {
 
@@ -10,6 +11,11 @@ const App: FC = () => {
         <Box sx={{display: "flex"}}>
             <AppBar/>
             <SideMenu/>
+            <Box component="main" sx={{ flexGrow: 1, p: 3 }}>
+                <Toolbar/>
+                <Root/>
+            </Box>
+
         </Box>
     )
 }
