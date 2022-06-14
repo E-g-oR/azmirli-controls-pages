@@ -6,6 +6,7 @@ import CitiesEditor from "./components/editors/cities";
 import FlavorsEditor from "./components/editors/flavors";
 import NotFound from "./components/library/not-found";
 import AddressesEditor from "./components/editors/addresses";
+import StructuresEditor from "./components/editors/structures";
 
 const Root: FC = () => {
     const location = useLocation()
@@ -15,7 +16,7 @@ const Root: FC = () => {
         .with("Cities", () => <CitiesEditor/>)
         .with("Flavors", () => <FlavorsEditor/>)
         .with("Addresses", () => <AddressesEditor/>)
-        .with("Structures", () => null)
+        .with("Structures", () => <StructuresEditor/>)
         .with("NotFound", () => <NotFound/>)
         .otherwise(() => <NotFound/>)
 

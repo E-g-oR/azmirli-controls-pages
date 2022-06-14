@@ -31,20 +31,20 @@ const menu: ReadonlyArray<MenuItem> = [
     {
         icon: <BusinessIcon/>,
         link: ROUTES.cities,
-        name: "Cities"
+        name: "Города"
     },
     {
-        name: "Flavors",
+        name: "Ароматы",
         link: ROUTES.flavors,
         icon: <SpaIcon/>
     },
     {
-        name: "Addresses",
+        name: "Адреса",
         link: ROUTES.addresses,
         icon: <ImportContactsIcon/>
     },
     {
-        name: "Structures",
+        name: "Составы",
         link: ROUTES.structures,
         icon: <BlenderIcon/>
     }

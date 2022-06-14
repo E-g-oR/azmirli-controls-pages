@@ -1,48 +1,73 @@
 import {FC} from "react";
-import {IconButton, Stack, Typography} from "@mui/material";
-import Table from "../../library/table";
+import {IconButton, Skeleton, Stack, Tooltip, Typography} from "@mui/material";
+import Table, {Config} from "../../library/table";
 import {useQuery} from "thin-backend-react";
 import {City, query} from "thin-backend";
-import {pipe} from "fp-ts/es6/function";
+import {DeleteOutlined, EditOutlined} from "@mui/icons-material";
+import TableHeader from "../../library/table/table-head";
+import TableRow from "../../library/table/table-row";
 
-import * as A from "fp-ts/ReadonlyArray"
-// import * as R from "fp-ts/Record"
-// import * as O from "fp-ts/Option"
-import {Delete, Edit} from "@mui/icons-material";
-
-//
-// const getHeaders = (cities: City[]): (keyof City)[] | null => pipe(
-//     cities,
-//     A.head,
-//     O.fold(
-//         () => null,
-//         flow(R.keys)
-//     )
-// )
-
-const getConfig = (a: ReadonlyArray<City>) => pipe(
-    a,
-    A.map(city => ({
-        ...city,
-        actions: <Stack spacing={1} direction={"row"}>
-            <IconButton onClick={() => console.log("edit", city.subDomain)}>
-                <Edit/>
+const config: ReadonlyArray<Config<City>> = [{
+    key: "actions",
+    header: "Действия",
+    size: "max-content",
+    render: (v) => <Stack
+        direction={"row"}
+        spacing={1}
+    >
+        <Tooltip title={"Редактировать"}>
+            <IconButton onClick={() => console.log("edit", v.name)}>
+                <EditOutlined/>
             </IconButton>
-            <IconButton onClick={() => console.log("delete", city.subDomain)}>
-                <Delete/>
+        </Tooltip>
+        <Tooltip title={"Удалить"}>
+            <IconButton onClick={() => console.log("delete", v.name)}>
+                <DeleteOutlined/>
             </IconButton>
-        </Stack>
-    }))
-)
+        </Tooltip>
+    </Stack>
+}, {
+    key: "name",
+    header: "Имя",
+    size: "max-content",
+    render: (v) => <>{v.name}</>
+}, {
+    key: "sub_domain",
+    header: "Поддомен",
+    size: "max-content",
+    render: (v) => <>{v.subDomain}</>
+}, {
+    key: "instagram",
+    header: "Инстаграм",
+    size: "300px",
+    render: (v) => <>{v.instagram}</>
+}, {
+    key: "vkontakte",
+    header: "ВКонтакте",
+    size: "300px",
+    render: (v) => <>{v.vkontakte}</>
+}, {
+    key: "facebook",
+    header: "Фейсбук",
+    size: "300px",
+    render: (v) => <>{v.facebook}</>
+},]
 
 const CitiesEditor: FC = () => {
     const cities = useQuery(query("cities").orderBy("subDomain"))
-
-    const config = getConfig(cities ?? [])
-
     return <>
         <Typography variant={"h3"}>CitiesEditor</Typography>
-        <Table config={config}/>
+        {cities ?
+            <Table config={config}>
+                <TableHeader/>
+                <tbody>
+                {cities?.map(city => <TableRow key={city.id} row={city}/>)}
+                </tbody>
+
+            </Table>
+            : <Skeleton variant={"rectangular"} width={"100%"} height={"100%"}/>
+        }
+
     </>
 }
 
