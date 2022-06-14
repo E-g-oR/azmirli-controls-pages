@@ -4,6 +4,8 @@ import {Box, Toolbar} from "@mui/material";
 import SideMenu from "./components/library/side-menu";
 import AppBar from "./components/library/app-bar";
 import Root from "./root";
+import 'thin-backend-react/auth.css';
+import "thin-backend-components/crud.css"
 
 const App: FC = () => {
 

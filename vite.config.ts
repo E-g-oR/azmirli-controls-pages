@@ -1,6 +1,6 @@
 import { defineConfig } from 'vite'
 import react from '@vitejs/plugin-react'
-// import { vanillaExtractPlugin } from "@vanilla-extract/vite-plugin"
+import { vanillaExtractPlugin } from "@vanilla-extract/vite-plugin"
 import svgrPlugin from "vite-plugin-svgr"
 import { viteStaticCopy } from "vite-plugin-static-copy"
 import checker from "vite-plugin-checker"
@@ -19,7 +19,7 @@ export default defineConfig({
         lintCommand: "eslint src"
       }
     }),
-    // vanillaExtractPlugin(),
+    vanillaExtractPlugin(),
     react(),
     viteStaticCopy({
       targets: [

@@ -5,7 +5,11 @@ import './index.css'
 import CssBaseline from '@mui/material/CssBaseline';
 import {createTheme, ThemeProvider} from "@mui/material";
 import {BrowserRouter} from "react-router-dom";
+import {ThinBackend} from "thin-backend-react";
+import {initThinBackend} from 'thin-backend';
 
+
+initThinBackend({host: import.meta.env.VITE_APP_BACKEND_URL});
 const theme = createTheme({
     palette: {
         primary: {
@@ -43,10 +47,12 @@ const root = document.getElementById("root")
 root && ReactDOM.createRoot(root).render(
     <React.StrictMode>
         <BrowserRouter>
-            <ThemeProvider theme={theme}>
-                <CssBaseline/>
-                <App/>
-            </ThemeProvider>
+            <ThinBackend requireLogin>
+                <ThemeProvider theme={theme}>
+                    <CssBaseline/>
+                    <App/>
+                </ThemeProvider>
+            </ThinBackend>
         </BrowserRouter>
     </React.StrictMode>
 )

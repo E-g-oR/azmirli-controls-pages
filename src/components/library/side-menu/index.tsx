@@ -1,6 +1,6 @@
-import {FC} from "react";
+import {FC, ReactNode} from "react";
 import {
-    Box, Button,
+    Box,
     Divider,
     Drawer,
     List,
@@ -11,12 +11,48 @@ import {
     SvgIcon,
     Toolbar
 } from "@mui/material";
-import InboxIcon from '@mui/icons-material/MoveToInbox';
-import MailIcon from '@mui/icons-material/Mail';
+import {ROUTES} from "../../../utils/routing";
+
+import SpaIcon from '@mui/icons-material/Spa';
+import BusinessIcon from '@mui/icons-material/Business';
+import ImportContactsIcon from '@mui/icons-material/ImportContacts';
+import BlenderIcon from '@mui/icons-material/Blender';
+import {useNavigate} from "react-router-dom";
 
 const drawerWidth = 240;
 
+interface MenuItem {
+    name: string,
+    icon: ReactNode,
+    link: string,
+}
+
+const menu: ReadonlyArray<MenuItem> = [
+    {
+        icon: <BusinessIcon/>,
+        link: ROUTES.cities,
+        name: "Cities"
+    },
+    {
+        name: "Flavors",
+        link: ROUTES.flavors,
+        icon: <SpaIcon/>
+    },
+    {
+        name: "Addresses",
+        link: ROUTES.addresses,
+        icon: <ImportContactsIcon/>
+    },
+    {
+        name: "Structures",
+        link: ROUTES.structures,
+        icon: <BlenderIcon/>
+    }
+]
+
 const SideMenu: FC = () => {
+    const navigate = useNavigate()
+
     return <div>
         <Drawer
             variant="permanent"
@@ -29,35 +65,21 @@ const SideMenu: FC = () => {
             <Toolbar/>
             <Box sx={{overflow: 'auto'}}>
                 <List>
-                    {['Inbox', 'Starred', 'Send email', 'Drafts'].map((text, index) => (
-                        <ListItem key={text} disablePadding>
-                            <ListItemButton color={"secondary"}>
-                                <Button color={"secondary"} sx={{display: "flex"}}>
-                                    <ListItemIcon>
-                                        <SvgIcon color={"primary"}>
-                                            {index % 2 === 0 ? <InboxIcon/> : <MailIcon/>}
-                                        </SvgIcon>
-                                    </ListItemIcon>
-                                    <ListItemText primary={text}/>
-                                </Button>
+                    {menu.map(item => (
+                        <ListItem key={item.name} disablePadding>
+                            <ListItemButton color={"secondary"} onClick={() => navigate(item.link)}>
+                                <ListItemIcon>
+                                    <SvgIcon color={"primary"}>
+                                        {item.icon}
+                                    </SvgIcon>
+                                </ListItemIcon>
+                                <ListItemText primary={item.name}/>
                             </ListItemButton>
 
                         </ListItem>
                     ))}
                 </List>
                 <Divider/>
-                <List>
-                    {['All mail', 'Trash', 'Spam'].map((text, index) => (
-                        <ListItem key={text} disablePadding>
-                            <ListItemButton>
-                                <ListItemIcon>
-                                    {index % 2 === 0 ? <InboxIcon/> : <MailIcon/>}
-                                </ListItemIcon>
-                                <ListItemText primary={text}/>
-                            </ListItemButton>
-                        </ListItem>
-                    ))}
-                </List>
             </Box>
         </Drawer>
     </div>

@@ -5,6 +5,7 @@ import {match} from "ts-pattern";
 import CitiesEditor from "./components/editors/cities";
 import FlavorsEditor from "./components/editors/flavors";
 import NotFound from "./components/library/not-found";
+import AddressesEditor from "./components/editors/addresses";
 
 const Root: FC = () => {
     const location = useLocation()
@@ -13,7 +14,7 @@ const Root: FC = () => {
     return match(_tag)
         .with("Cities", () => <CitiesEditor/>)
         .with("Flavors", () => <FlavorsEditor/>)
-        .with("Addresses", () => null)
+        .with("Addresses", () => <AddressesEditor/>)
         .with("Structures", () => null)
         .with("NotFound", () => <NotFound/>)
         .otherwise(() => <NotFound/>)
