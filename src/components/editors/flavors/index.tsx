@@ -56,7 +56,7 @@ const config: ReadonlyArray<Config<Flavor>> = [{
 const FlavorsEditor: FC = () => {
     const flavors = useQuery(query("flavors"))
     return <>
-        <Typography variant={"h3"}>FlavorsEditor</Typography>
+        <Typography variant={"h3"}>Редактор ароматов</Typography>
         <Table config={config}>
             <TableHeader/>
             {flavors?.map(flavor => <TableRow key={flavor.id} row={flavor}/>)}

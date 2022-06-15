@@ -21,7 +21,7 @@ interface NotFound {
     readonly _tag: 'NotFound'
 }
 
-type Location_ = Cities | Addresses | Structures | Flavors | NotFound
+export type Location_ = Cities | Addresses | Structures | Flavors | NotFound
 
 const home: Location_ = {_tag: "Cities"}
 const cities: Location_ = home

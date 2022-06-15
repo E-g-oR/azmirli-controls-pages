@@ -27,7 +27,8 @@
     "ts-pattern": "^4.0.3",
     "url": "^0.11.0",
     "vite-plugin-static-copy": "^0.5.1",
-    "vite-plugin-svgr": "^2.1.0"
+    "vite-plugin-svgr": "^2.1.0",
+    "zustand": "^4.0.0-rc.1"
   },
   "devDependencies": {
     "@types/node": "^17.0.42",
