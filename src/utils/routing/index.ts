@@ -1,23 +1,29 @@
 import {lit, end, Route, parse, format} from "fp-ts-routing/es6";
 import {zero} from "fp-ts-routing";
 
-export interface Cities {
+export type Tag = "Cities" | "Flavors" | "Addresses" | "Structures" | 'NotFound'
+
+type DefaultLocation = {
+    readonly _tag: Tag
+}
+
+export interface Cities extends DefaultLocation {
     readonly _tag: "Cities"
 }
 
-interface Flavors {
+interface Flavors extends DefaultLocation {
     readonly _tag: "Flavors"
 }
 
-interface Addresses {
+interface Addresses extends DefaultLocation {
     readonly _tag: "Addresses"
 }
 
-interface Structures {
+interface Structures extends DefaultLocation {
     readonly _tag: "Structures"
 }
 
-interface NotFound {
+interface NotFound extends DefaultLocation {
     readonly _tag: 'NotFound'
 }
 
