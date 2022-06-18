@@ -1,4 +1,4 @@
-import {FC} from "react";
+import {FC, useMemo} from "react";
 import {
     IconButton,
     Skeleton,
@@ -14,15 +14,17 @@ import TableHeader from "../../library/table/table-head";
 import TableRow from "../../library/table/table-row";
 import CitiesDialog from "./dialog";
 import useStoreDialogCity from "../../../stores/dialog/cities-store";
+import FastActionButton from "../../library/fast-action-button";
 
 
 const CitiesEditor: FC = () => {
     const setIsOpen = useStoreDialogCity(state => state.setIsOpen)
-    // const setCreateCity = useStoreDialogCity(state => state.setCreateCity)
+    const setCreateCity = useStoreDialogCity(state => state.setCreateCity)
     const setEditCity = useStoreDialogCity(state => state.setEditCity)
 
 
-    const config: ReadonlyArray<Config<City>> = [{
+    const config: ReadonlyArray<Config<City>> = useMemo(()=> [
+        {
         key: "actions",
         header: "Действия",
         size: "max-content",
@@ -66,7 +68,7 @@ const CitiesEditor: FC = () => {
         header: "Фейсбук",
         size: "300px",
         render: (v) => <>{v.facebook}</>
-    },]
+    },], [setEditCity])
 
 
     const cities = useQuery(query("cities").orderBy("subDomain"))
@@ -83,6 +85,7 @@ const CitiesEditor: FC = () => {
             : <Skeleton variant={"rectangular"} width={"100%"} height={"100%"}/>
         }
 
+        <FastActionButton onClick={setCreateCity}/>
         <CitiesDialog onClose={() => setIsOpen(false)}/>
     </>
 }

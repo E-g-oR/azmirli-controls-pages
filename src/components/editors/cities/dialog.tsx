@@ -1,8 +1,18 @@
-import {FC, useCallback, useEffect, useState} from "react";
+import {FC, useCallback, useEffect, useMemo, useState} from "react";
 import useStoreDialogCity from "../../../stores/dialog/cities-store";
 import DialogLayout from "../../dialog";
 import {City, createRecord, NewCity, updateRecord} from "thin-backend";
 import {Stack, TextField} from "@mui/material";
+import {useSnackbar} from "notistack";
+
+function makeRequest<T>(R: () => Promise<T> | undefined, onSuccess: () => void, onError: () => void) {
+
+    if (R) {
+        R()
+            .then(() => onSuccess())
+            .catch(() => onError())
+    } else onError()
+}
 
 const createCity = (city: NewCity) => createRecord("cities", city)
 const editCity = (city: City) => updateRecord("cities", city.id, city)
@@ -12,6 +22,10 @@ interface Props {
 }
 
 const CitiesDialog: FC<Props> = ({onClose}) => {
+
+    const {enqueueSnackbar} = useSnackbar()
+
+
     const mode = useStoreDialogCity(state => state.mode)
     const isOpen = useStoreDialogCity(state => state.isOpen)
     const currentCity = useStoreDialogCity(state => state.city)
@@ -22,6 +36,33 @@ const CitiesDialog: FC<Props> = ({onClose}) => {
     const [facebook, setFacebook] = useState(currentCity?.facebook ?? "")
     const [vkontakte, setVkontakte] = useState(currentCity?.vkontakte ?? "")
 
+    const [nameError, setNameError] = useState("")
+    const [subDomainError, setSubDomainError] = useState("")
+
+    useEffect(() => {
+        if (!name.trim()) {
+            setNameError("Название не может быть пустым")
+        } else setNameError("")
+    }, [name])
+
+    useEffect(() => {
+        if (!subDomain.trim()) {
+            setSubDomainError("Поддомен не может быть пустым")
+        } else setSubDomainError("")
+    }, [subDomain])
+
+    const message = useMemo(() => mode === "edit" ? "Запись изменена!" : "Запись создана!", [mode])
+
+    const onSuccess = () => {
+        enqueueSnackbar(message, {variant: "success"})
+        onClose()
+    }
+
+    const onError = () => {
+        enqueueSnackbar("Something went wrong", {variant: "error"})
+    }
+
+
     const newCity: NewCity = {
         name,
         subDomain,
@@ -30,11 +71,13 @@ const CitiesDialog: FC<Props> = ({onClose}) => {
         vkontakte
     }
 
-    const onSubmit = useCallback(
-        () => mode === "create" ?
-            createCity(newCity)
-            : (currentCity && editCity({...currentCity, ...newCity}))
-        , [mode, newCity, currentCity])
+    const onSubmit = useCallback(() => {
+        if (!nameError && !subDomainError) {
+            return mode === "create" ?
+                createCity(newCity)
+                : (currentCity && editCity({...currentCity, ...newCity}))
+        } else return onError
+    }, [mode, newCity, currentCity])
 
 
     useEffect(() => {
@@ -52,7 +95,9 @@ const CitiesDialog: FC<Props> = ({onClose}) => {
         title={title}
         onCancel={onClose}
         onClose={onClose}
-        onSubmit={onSubmit}
+        onSubmit={() => {
+            makeRequest(onSubmit, onSuccess, onError)
+        }}
     >
         <Stack direction={"column"} flexWrap={"wrap"} spacing={3}>
 
@@ -63,6 +108,7 @@ const CitiesDialog: FC<Props> = ({onClose}) => {
                 name={"cityName"}
                 value={name}
                 onChange={(v) => setName(v.target.value)}
+                error={!!nameError}
             />
             <TextField
                 variant={"standard"}
@@ -71,6 +117,7 @@ const CitiesDialog: FC<Props> = ({onClose}) => {
                 name={"citySubDomain"}
                 value={subDomain}
                 onChange={(v) => setSubDomain(v.target.value)}
+                error={!!subDomainError}
             />
             <TextField
                 variant={"standard"}

@@ -7,6 +7,7 @@ import {createTheme, ThemeProvider} from "@mui/material";
 import {BrowserRouter} from "react-router-dom";
 import {ThinBackend} from "thin-backend-react";
 import {initThinBackend} from 'thin-backend';
+import {SnackbarProvider} from "notistack";
 
 
 initThinBackend({host: import.meta.env.VITE_APP_BACKEND_URL});
@@ -49,8 +50,10 @@ root && ReactDOM.createRoot(root).render(
         <BrowserRouter>
             <ThinBackend requireLogin>
                 <ThemeProvider theme={theme}>
-                    <CssBaseline/>
-                    <App/>
+                    <SnackbarProvider maxSnack={3}>
+                        <CssBaseline/>
+                        <App/>
+                    </SnackbarProvider>
                 </ThemeProvider>
             </ThinBackend>
         </BrowserRouter>
