@@ -4,14 +4,13 @@ import DialogLayout from "../../dialog";
 import {City, createRecord, NewCity, updateRecord} from "thin-backend";
 import {Stack, TextField} from "@mui/material";
 import {useSnackbar} from "notistack";
+import {of} from "rxjs";
 
-function makeRequest<T>(R: () => Promise<T> | undefined, onSuccess: () => void, onError: () => void) {
-
-    if (R) {
-        R()
-            .then(() => onSuccess())
-            .catch(() => onError())
-    } else onError()
+export function makeRequest<T>(request: () => Promise<T>, onSuccess: () => void, onError: () => void) {
+    return of(request()).subscribe({
+        next: onSuccess,
+        error: onError
+    }).unsubscribe()
 }
 
 const createCity = (city: NewCity) => createRecord("cities", city)

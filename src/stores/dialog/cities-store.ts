@@ -3,13 +3,16 @@ import {City} from "thin-backend";
 
 export type Mode = "edit" | "create"
 
-interface CitiesStore {
+export interface StoreDialog {
     isOpen: boolean,
-    city: City | null,
     mode: Mode,
-    setCity: (city: City) => void,
     setMode: (mode: Mode) => void,
     setIsOpen: (isOpen: boolean) => void,
+}
+
+interface CitiesStore extends StoreDialog {
+    city: City | null,
+    setCity: (city: City) => void,
     setEditCity: (city: City) => void,
     setCreateCity: () => void,
 }

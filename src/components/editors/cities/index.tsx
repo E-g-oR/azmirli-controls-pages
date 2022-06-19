@@ -73,7 +73,7 @@ const CitiesEditor: FC = () => {
 
     const cities = useQuery(query("cities").orderBy("subDomain"))
     return <>
-        <Typography variant={"h3"}>Редактор городов</Typography>
+        <Typography variant={"h3"} sx={{paddingBottom: 2}} >Редактор городов</Typography>
         {cities ?
             <Table config={config}>
                 <TableHeader/>
