@@ -1,26 +1,40 @@
-import {FC, useCallback, useEffect, useMemo, useState} from "react";
+import {FC, useCallback, useEffect, useMemo} from "react";
 import useStoreDialogCity from "../../../stores/dialog/cities-store";
 import DialogLayout from "../../dialog";
-import {City, createRecord, NewCity, updateRecord} from "thin-backend";
+import {City, createRecord, IHPRecord, NewCity, updateRecord} from "thin-backend";
 import {Stack, TextField} from "@mui/material";
 import {useSnackbar} from "notistack";
-import {of} from "rxjs";
+import {catchError, of, throwError} from "rxjs";
+import {SubmitHandler, useForm, Controller} from "react-hook-form";
+import {match} from "ts-pattern";
 
 export function makeRequest<T>(request: () => Promise<T>, onSuccess: () => void, onError: () => void) {
-    return of(request()).subscribe({
-        next: onSuccess,
-        error: onError
-    }).unsubscribe()
+    return of(request())
+        .pipe(
+            catchError(err => throwError(err))
+        )
+        .subscribe({
+            next: onSuccess,
+            error: onError
+        }).unsubscribe()
 }
 
-const createCity = (city: NewCity) => createRecord("cities", city)
-const editCity = (city: City) => updateRecord("cities", city.id, city)
+const createCity = (city: NewCity) => () => createRecord("cities", city)
+const editCity = (city: City) => () => updateRecord("cities", city.id, city)
+
 
 interface Props {
     onClose: () => void,
 }
 
+const getCity = (currentCity: City, newCity: NewCity): City => ({
+    ...currentCity,
+    ...newCity
+})
+
+
 const CitiesDialog: FC<Props> = ({onClose}) => {
+
 
     const {enqueueSnackbar} = useSnackbar()
 
@@ -29,26 +43,29 @@ const CitiesDialog: FC<Props> = ({onClose}) => {
     const isOpen = useStoreDialogCity(state => state.isOpen)
     const currentCity = useStoreDialogCity(state => state.city)
 
-    const [name, setName] = useState(currentCity?.name ?? "")
-    const [subDomain, setSubDomain] = useState(currentCity?.subDomain ?? "")
-    const [instagram, setInstagram] = useState(currentCity?.instagram ?? "")
-    const [facebook, setFacebook] = useState(currentCity?.facebook ?? "")
-    const [vkontakte, setVkontakte] = useState(currentCity?.vkontakte ?? "")
+    const {
+        control,
+        handleSubmit,
+        formState: {errors},
+        setValue,
+        reset,
+        clearErrors
+    } = useForm<NewCity>({
+        defaultValues: {
+            name: currentCity?.name ?? "",
+            subDomain: currentCity?.subDomain ?? "",
+            instagram: currentCity?.instagram ?? "",
+            facebook: currentCity?.facebook ?? "",
+            vkontakte: currentCity?.vkontakte ?? "",
+            id: currentCity?.id,
+        }
+    })
 
-    const [nameError, setNameError] = useState("")
-    const [subDomainError, setSubDomainError] = useState("")
+    const resetForm = useCallback(() => {
+        reset()
+        clearErrors()
+    }, [reset, clearErrors])
 
-    useEffect(() => {
-        if (!name.trim()) {
-            setNameError("Название не может быть пустым")
-        } else setNameError("")
-    }, [name])
-
-    useEffect(() => {
-        if (!subDomain.trim()) {
-            setSubDomainError("Поддомен не может быть пустым")
-        } else setSubDomainError("")
-    }, [subDomain])
 
     const message = useMemo(() => mode === "edit" ? "Запись изменена!" : "Запись создана!", [mode])
 
@@ -58,91 +75,97 @@ const CitiesDialog: FC<Props> = ({onClose}) => {
     }
 
     const onError = () => {
-        enqueueSnackbar("Something went wrong", {variant: "error"})
+        enqueueSnackbar("Что-то пошло не так", {variant: "error"})
     }
-
-
-    const newCity: NewCity = {
-        name,
-        subDomain,
-        facebook,
-        instagram,
-        vkontakte
-    }
-
-    const onSubmit = useCallback(() => {
-        if (!nameError && !subDomainError) {
-            return mode === "create" ?
-                createCity(newCity)
-                : (currentCity && editCity({...currentCity, ...newCity}))
-        } else return onError
-    }, [mode, newCity, currentCity])
-
 
     useEffect(() => {
-        setName(currentCity?.name ?? "")
-        setSubDomain(currentCity?.subDomain ?? "")
-        setInstagram(currentCity?.instagram ?? "")
-        setFacebook(currentCity?.facebook ?? "")
-        setVkontakte(currentCity?.vkontakte ?? "")
+        setValue("id", currentCity?.id)
+        setValue("name", currentCity?.name ?? "")
+        setValue("subDomain", currentCity?.subDomain ?? null)
+        setValue("instagram", currentCity?.instagram ?? null)
+        setValue("vkontakte", currentCity?.vkontakte ?? null)
+        setValue("facebook", currentCity?.facebook ?? null)
     }, [currentCity])
 
+    useEffect(() => {
+        mode === "create" && resetForm()
+    }, [mode])
+
     const title = (mode === "create" ? "Создать" : "Изменить") + " город " + (currentCity ? currentCity.name : "")
+
+    const onSubmit: SubmitHandler<NewCity> = useCallback((data) => {
+        const func: () => Promise<IHPRecord<"cities">> = match(mode)
+            .with("create", () => createCity(data))
+            .with("edit", () => currentCity ? editCity(getCity(currentCity, data)) : createCity(data))
+            .exhaustive()
+
+        return makeRequest(func, onSuccess, onError)
+    }, [currentCity, mode])
+
 
     return <DialogLayout
         isOpen={isOpen}
         title={title}
         onCancel={onClose}
-        onClose={onClose}
-        onSubmit={() => {
-            makeRequest(onSubmit, onSuccess, onError)
+        onClose={() => {
+            onClose()
+            resetForm()
         }}
+        onSubmit={handleSubmit(onSubmit)}
     >
+
         <Stack direction={"column"} flexWrap={"wrap"} spacing={3}>
 
-            <TextField
-                variant={"standard"}
-                title={"Название"}
-                label={"Название"}
-                name={"cityName"}
-                value={name}
-                onChange={(v) => setName(v.target.value)}
-                error={!!nameError}
+            <Controller
+                name={"name"}
+                rules={{
+                    required: {
+                        message: "Название не может быть пустым",
+                        value: true,
+                    }
+                }}
+                control={control}
+                render={({field}) => <TextField
+                    label={"Название"}
+                    variant={"standard"}
+                    {...field}
+                    error={!!errors.name}
+                    helperText={errors.name?.message}
+                />}
             />
-            <TextField
-                variant={"standard"}
-                title={"Поддомен"}
-                label={"Поддомен"}
-                name={"citySubDomain"}
-                value={subDomain}
-                onChange={(v) => setSubDomain(v.target.value)}
-                error={!!subDomainError}
-            />
-            <TextField
-                variant={"standard"}
-                title={"Инстаграм"}
-                label={"Инстаграм"}
-                name={"cityInstagram"}
-                value={instagram}
-                onChange={(v) => setInstagram(v.target.value)}
-            />
-            <TextField
-                variant={"standard"}
-                title={"Фейсбук"}
-                label={"Фейсбук"}
-                name={"cityFacebook"}
-                value={facebook}
-                onChange={(v) => setFacebook(v.target.value)}
-            />
-            <TextField
-                variant={"standard"}
-                title={"ВКонтакте"}
-                label={"ВКонтакте"}
-                name={"cityVkontakte"}
-                value={vkontakte}
-                onChange={(v) => setVkontakte(v.target.value)}
+            <Controller
+                name={"subDomain"}
+                rules={{
+                    required: {
+                        message: "Поддомен не может быть пустым",
+                        value: true,
+                    }
+                }}
+                control={control}
+                render={({field}) => <TextField
+                    label={"Поддомен"}
+                    variant={"standard"}
+                    {...field}
+                    error={!!errors.subDomain}
+                    helperText={errors.subDomain?.message}
+                />}
             />
 
+            <Controller
+                name={"instagram"}
+                control={control}
+                render={({field}) => <TextField label={"Инстаграм"} variant={"standard"} {...field} />}
+            />
+            <Controller
+                name={"vkontakte"}
+                control={control}
+                render={({field}) => <TextField label={"ВКонтакте"} variant={"standard"} {...field} />}
+            />
+            <Controller
+                name={"facebook"}
+                control={control}
+                render={({field}) => <TextField label={"Фейсбук"} variant={"standard"} {...field} />}
+            />
         </Stack>
 
     </DialogLayout>

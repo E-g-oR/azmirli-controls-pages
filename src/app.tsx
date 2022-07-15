@@ -6,22 +6,16 @@ import Root from "./root"
 import 'thin-backend-react/auth.css'
 import "thin-backend-components/crud.css"
 
-const App: FC = () => {
+const App: FC = () => <>
+    <Box sx={{display: "flex", position: "relative"}}>
+        <AppBar/>
+        <SideMenu/>
+        <Box component="main" sx={{flexGrow: 1, p: 3, position: "relative"}}>
+            <Toolbar/>
+            <Root/>
+        </Box>
 
-    return (
-        <>
-            <Box sx={{display: "flex", position: "relative"}}>
-                <AppBar/>
-                <SideMenu/>
-                <Box component="main" sx={{flexGrow: 1, p: 3, position: "relative"}}>
-                    <Toolbar/>
-                    <Root/>
-                </Box>
-
-            </Box>
-        </>
-
-    )
-}
+    </Box>
+</>
 
 export default App
