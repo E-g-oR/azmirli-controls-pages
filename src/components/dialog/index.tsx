@@ -15,7 +15,12 @@ interface Props {
 }
 
 const DialogLayout: FC<Props> = ({children, onCancel, onSubmit, onClose, isOpen, title}) => {
-    return <Dialog open={isOpen} fullWidth maxWidth={"sm"} onKeyUp={(v) => v.key === "Escape" && onCancel()}>
+    return <Dialog
+        open={isOpen}
+        fullWidth
+        maxWidth={"sm"}
+        onKeyUp={(v) => v.key === "Escape" && onCancel()}
+    >
         {
             title && <>
                 <DialogTitle textTransform={"capitalize"}>{title}</DialogTitle>
@@ -32,14 +37,16 @@ const DialogLayout: FC<Props> = ({children, onCancel, onSubmit, onClose, isOpen,
                 <Divider/>
             </>
         }
-        <DialogContent>
-            {children}
-        </DialogContent>
-        <Divider/>
-        <DialogActions>
-            <Button variant={"outlined"} onClick={onCancel}>отмена</Button>
-            <Button variant={"contained"} onClick={onSubmit}>Подтвердить</Button>
-        </DialogActions>
+        <form onSubmit={onSubmit}>
+            <DialogContent>
+                {children}
+            </DialogContent>
+            <Divider/>
+            <DialogActions>
+                <Button variant={"outlined"} onClick={onCancel}>отмена</Button>
+                <Button variant={"contained"} type={"submit"}>Подтвердить</Button>
+            </DialogActions>
+        </form>
     </Dialog>
 }
 

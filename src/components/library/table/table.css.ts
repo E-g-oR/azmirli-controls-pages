@@ -10,7 +10,8 @@ export const tableHead = style({
     textTransform: "capitalize",
     fontWeight: "bold",
     borderBottom: "1px solid red",
-    padding: "0.5rem 0"
+    padding: "0.5rem 0",
+    // borderBottomWidth:
 })
 
 export const tableRow = style({})

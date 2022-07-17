@@ -8,23 +8,23 @@ import TableRow from "../../library/table/table-row";
 import {DeleteOutlined, EditOutlined} from "@mui/icons-material";
 import FastActionButton from "../../library/fast-action-button";
 import useStoreFlavorsDialog from "../../../stores/dialog/flavors-store";
-import FlavorsEditDialog, {getVolumesFromString} from "./dialog";
+import FlavorsEditDialog, {processStringToArray} from "./dialog";
 import {useSnackbar} from "notistack";
 import {makeRequest} from "../cities/dialog";
-import {pipe} from "fp-ts/es6/function";
-import * as RR from "fp-ts/ReadonlyRecord"
-import * as A from "fp-ts/ReadonlyArray"
-import * as S from "fp-ts/string"
+// import {pipe} from "fp-ts/es6/function";
+// import * as RR from "fp-ts/ReadonlyRecord"
+// import * as A from "fp-ts/ReadonlyArray"
+// import * as S from "fp-ts/string"
 
 const deleteFlavor = (id: UUID) => deleteRecord("flavors", id)
 
-const getVolumesUI = (input: string) => pipe(
-    input,
-    getVolumesFromString,
-    RR.filter(volume => !!volume),
-    RR.keys,
-    A.intercalate(S.Monoid)(", ")
-)
+// const getVolumesUI = (input: string) => pipe(
+//     input,
+//     getVolumesFromString,
+//     RR.filter(volume => !!volume),
+//     RR.keys,
+//     A.intercalate(S.Monoid)(", ")
+// )
 
 const FlavorsEditor: FC = () => {
     const {enqueueSnackbar} = useSnackbar()
@@ -36,9 +36,14 @@ const FlavorsEditor: FC = () => {
         enqueueSnackbar("Не получилось удалить аромат ://", {variant: "error"})
     }
 
-    const onClose = useStoreFlavorsDialog(state => state.setClose)
+    const setIsOpen = useStoreFlavorsDialog(state => state.setIsOpen)
     const setCreateFlavor = useStoreFlavorsDialog(state => state.setCreateFlavor)
     const setEditFlavor = useStoreFlavorsDialog(state => state.setEditFlavor)
+
+    const onClose = () => {
+        setCreateFlavor()
+        setIsOpen(false)
+    }
 
 
     const config: ReadonlyArray<Config<Flavor>> = useMemo(() => [{
@@ -50,14 +55,16 @@ const FlavorsEditor: FC = () => {
             spacing={1}
         >
             <Tooltip title={"Редактировать"}>
-                <IconButton>
-                    <EditOutlined onClick={() => setEditFlavor(v)}/>
+                <IconButton onClick={() => {
+                    // console.log(v)
+                    setEditFlavor(v)
+                }}>
+                    <EditOutlined/>
                 </IconButton>
             </Tooltip>
             <Tooltip title={"Удалить"}>
-                <IconButton>
-                    <DeleteOutlined
-                        onClick={() => makeRequest(() => deleteFlavor(v.id), onDeleteSuccess, onDeleteError)}/>
+                <IconButton onClick={() => makeRequest(() => deleteFlavor(v.id), onDeleteSuccess, onDeleteError)}>
+                    <DeleteOutlined/>
                 </IconButton>
             </Tooltip>
         </Stack>
@@ -80,7 +87,10 @@ const FlavorsEditor: FC = () => {
         key: "volumes",
         header: "Объемы",
         size: "max-content",
-        render: (v) => <>{getVolumesUI(v.volumes)}</>
+        render: (v) => {
+            // console.log("inside render func", v.volume)
+            return <>{Array.isArray(v.volume) ? v.volume.toString() : processStringToArray(v.volume ?? "").toString()}</>
+        }
     }, {
         key: "sex",
         header: "Пол",
