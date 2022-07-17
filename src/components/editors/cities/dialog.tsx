@@ -4,19 +4,17 @@ import DialogLayout from "../../dialog";
 import {City, createRecord, IHPRecord, NewCity, updateRecord} from "thin-backend";
 import {Stack, TextField} from "@mui/material";
 import {useSnackbar} from "notistack";
-import {catchError, of, throwError} from "rxjs";
 import {SubmitHandler, useForm, Controller} from "react-hook-form";
 import {match} from "ts-pattern";
 
+// TODO move it to utils file
 export function makeRequest<T>(request: () => Promise<T>, onSuccess: () => void, onError: () => void) {
-    return of(request())
-        .pipe(
-            catchError(err => throwError(err))
-        )
-        .subscribe({
-            next: onSuccess,
-            error: onError
-        }).unsubscribe()
+    return request()
+        .then(() => onSuccess())
+        .catch(err => {
+            console.log("ошибка", err)
+            onError()
+        })
 }
 
 const createCity = (city: NewCity) => () => createRecord("cities", city)
@@ -72,6 +70,7 @@ const CitiesDialog: FC<Props> = ({onClose}) => {
     const onSuccess = () => {
         enqueueSnackbar(message, {variant: "success"})
         onClose()
+        resetForm()
     }
 
     const onError = () => {
@@ -81,10 +80,10 @@ const CitiesDialog: FC<Props> = ({onClose}) => {
     useEffect(() => {
         setValue("id", currentCity?.id)
         setValue("name", currentCity?.name ?? "")
-        setValue("subDomain", currentCity?.subDomain ?? null)
-        setValue("instagram", currentCity?.instagram ?? null)
-        setValue("vkontakte", currentCity?.vkontakte ?? null)
-        setValue("facebook", currentCity?.facebook ?? null)
+        setValue("subDomain", currentCity?.subDomain ?? "")
+        setValue("instagram", currentCity?.instagram ?? "")
+        setValue("vkontakte", currentCity?.vkontakte ?? "")
+        setValue("facebook", currentCity?.facebook ?? "")
     }, [currentCity])
 
     useEffect(() => {
@@ -106,7 +105,10 @@ const CitiesDialog: FC<Props> = ({onClose}) => {
     return <DialogLayout
         isOpen={isOpen}
         title={title}
-        onCancel={onClose}
+        onCancel={() => {
+            onClose()
+            resetForm()
+        }}
         onClose={() => {
             onClose()
             resetForm()

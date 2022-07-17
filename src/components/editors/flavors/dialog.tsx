@@ -1,27 +1,28 @@
-import {ChangeEvent, FC, useCallback, useEffect, useState} from "react";
+import {FC, useCallback, useEffect} from "react";
 import DialogLayout from "../../dialog";
 import useStoreFlavorsDialog from "../../../stores/dialog/flavors-store";
-import {City, createRecord, Flavor, NewFlavor, query, updateRecord} from "thin-backend";
+import {createRecord, Flavor, IHPRecord, NewFlavor, updateRecord} from "thin-backend";
 import {
-    Checkbox, FormControl,
-    FormControlLabel,
-    FormGroup, FormLabel, InputLabel,
+    FormControl,
+    InputLabel,
     MenuItem,
     Select,
-    SelectChangeEvent,
     Stack,
     TextField
 } from "@mui/material";
-import * as RR from "fp-ts/ReadonlyRecord"
-import {pipe} from "fp-ts/es6/function";
-import * as Json from "fp-ts/Json"
-import * as E from "fp-ts/Either"
-import {useQuery} from "thin-backend-react";
+// import * as RR from "fp-ts/ReadonlyRecord"
+import {pipe} from "fp-ts/es6/function"
+import * as A from "fp-ts/ReadonlyArray"
+import * as S from "fp-ts/string"
+import * as O from "fp-ts/Option"
 import {useSnackbar} from "notistack";
 import {makeRequest} from "../cities/dialog";
+import {useForm, Controller, SubmitHandler} from "react-hook-form";
+import Checkbox from "../../library/input/checkbox";
+import useStoreCities from "../../../stores/cities";
 
-const createFlavor = (newFlavor: NewFlavor) => createRecord("flavors", newFlavor)
-const editFlavor = (flavor: Flavor) => updateRecord("flavors", flavor.id, flavor)
+const createFlavor = (newFlavor: NewFlavor) => () => createRecord("flavors", newFlavor)
+const editFlavor = (flavor: Flavor) => () => updateRecord("flavors", flavor.id, flavor)
 
 
 interface Props {
@@ -40,225 +41,275 @@ const sexTranslate: Record<Sex, SexRussian> = {
 type Category = "lux" | "selective" | "exclusive"
 const categoryValues: ReadonlyArray<Category> = ["lux", "exclusive", "selective"] as const
 
-type Volume = "30" | "50" | "100"
-type Volumes = RR.ReadonlyRecord<Volume, boolean>
-const defaultVolumes: Volumes = {
-    30: false,
-    50: false,
-    100: false,
-}
-export const getVolumesFromString = (input: string): Volumes => pipe(
+// type Volume = "30" | "50" | "100"
+// const VolumeKeys: ReadonlyArray<string> = ["30", "50", "100"]
+
+// type Volumes = RR.ReadonlyRecord<Volume, boolean>
+// const defaultVolumes: Volumes = {
+//     30: false,
+//     50: false,
+//     100: false,
+// }
+
+
+export const processArrayToString = (input: ReadonlyArray<string>) => pipe(
     input,
-    Json.parse,
-    E.foldW(
-        () => defaultVolumes,
-        // (a) => a as Volumes
-        (a) => Array.isArray(a) ? defaultVolumes : a as Volumes
+    A.intercalate(S.Monoid)(", "),
+    arrayString => `{${arrayString}}`
+)
+
+export const isArrayLiteral = (input: string | undefined) => {
+    // console.log("isArrayLiteral", input)
+    return (input && input?.startsWith("{") && input?.endsWith("}")) ? O.some(input) : O.none
+}
+
+export const processStringToArray = (input: string): ReadonlyArray<string> => pipe(
+    input,
+    isArrayLiteral,
+    O.fold(
+        () => [],
+        (input) => pipe(
+            input,
+            S.slice(1, input.length - 1),
+            S.split(","),
+            A.map(S.trim)
+        )
     )
 )
 
-const transformVolumesToString = (volumes: Volumes) => pipe(
-    volumes,
-    Json.stringify,
-    E.foldW(
-        () => '{"30": false, "50": false, "100": false}',
-        v => v
-    )
-)
+const getFlavor = (currentFlavor: Flavor, newFlavor: NewFlavor) => ({
+    ...currentFlavor,
+    ...newFlavor
+})
+
+type Inputs = NewFlavor & {
+    volume: Array<string>
+}
+
 const FlavorsEditDialog: FC<Props> = ({onClose}) => {
     const {enqueueSnackbar} = useSnackbar()
+    const isOpen = useStoreFlavorsDialog(state => state.isOpen)
+    const mode = useStoreFlavorsDialog(state => state.mode)
+    const currentFlavor = useStoreFlavorsDialog(state => state.flavor)
+    const cities = useStoreCities(state => state.cities)
+    const getCityByName = useStoreCities(state => state.getCityByName)
+    const getCityById = useStoreCities(state => state.getCityById)
+
+    const {
+        control,
+        handleSubmit,
+        formState: {errors},
+        setValue,
+        reset,
+        resetField,
+        clearErrors
+    } = useForm<Inputs>({
+        defaultValues: {
+            ...currentFlavor,
+            cityId: getCityById(currentFlavor?.cityId ?? "")?.name ?? cities?.[0]?.name ?? ""
+        }
+    })
+
+    const resetForm = useCallback(() => {
+        reset({
+            name: "",
+            id: "",
+            cityId: "",
+            volume: "",
+            brand: "",
+            sex: "",
+            articleNumber: "",
+            category: "",
+        })
+        clearErrors()
+    }, [reset, clearErrors, currentFlavor])
 
     const onSuccess = () => {
         enqueueSnackbar("Success", {variant: "success"})
         onClose()
+        resetForm()
     }
 
     const onError = () => {
         enqueueSnackbar("Something went wrong", {variant: "error"})
     }
 
-    const isOpen = useStoreFlavorsDialog(state => state.isOpen)
-    const mode = useStoreFlavorsDialog(state => state.mode)
-    const currentFlavor = useStoreFlavorsDialog(state => state.flavor)
-
-
-    // console.log(currentFlavor)
-
-    const cities: ReadonlyArray<City> | null = useQuery(query("cities"))
-
-    const [name, setName] = useState(currentFlavor?.name ?? "") // TextField
-    const [brand, setBrand] = useState(currentFlavor?.brand ?? "") // TextField
-    const [articleNumber, setArticleNumber] = useState(currentFlavor?.articleNumber ?? "") // TextField
-
-    const [sex, setSex] = useState<Sex>(currentFlavor?.sex as Sex ?? sexValues[2]) // Select
-    const [cityId, setCityId] = useState("") // Select
-    const [category, setCategory] = useState<Category>(currentFlavor?.category as Category ?? categoryValues?.[0]) // Select
-
-    const [volumes, setVolumes] = useState(getVolumesFromString(currentFlavor?.volumes ?? "")) // Checkbox
-
-    const {30: small, 50: medium, 100: big} = volumes
-
     const title = (mode === "create" ? "Создать" : "Изменить") + " аромат " + (currentFlavor?.articleNumber ?? "")
 
 
-    const newFlavor: NewFlavor = {
-        name,
-        brand,
-        articleNumber,
-        sex,
-        cityId,
-        category,
-        volumes: transformVolumesToString(volumes)
-    }
-
-    console.log(transformVolumesToString(volumes))
-
-    const onSubmit = useCallback(() => mode === "create" ? createFlavor(newFlavor) : (currentFlavor && editFlavor({...currentFlavor, ...newFlavor})), [mode, currentFlavor, newFlavor])
-
-
     useEffect(() => {
-        setName(currentFlavor?.name ?? "")
-        setBrand(currentFlavor?.brand ?? "")
-        setArticleNumber(currentFlavor?.articleNumber ?? "")
-        setSex(currentFlavor?.sex as Sex ?? sexValues[2])
-        setCategory(currentFlavor?.category as Category ?? categoryValues[0])
-        setVolumes(getVolumesFromString(currentFlavor?.volumes ?? ""))
-        setCityId(currentFlavor?.cityId ?? "")
+        setValue("name", currentFlavor?.name ?? "")
+        setValue("brand", currentFlavor?.brand ?? "")
+        setValue("articleNumber", currentFlavor?.articleNumber ?? "")
+        setValue("sex", currentFlavor?.sex ?? sexValues[2])
+        setValue("category", currentFlavor?.category ?? categoryValues[0])
+        setValue("cityId", currentFlavor?.cityId ?? cities?.[0].name)
     }, [currentFlavor])
 
-    const handleCheckboxChange = (v: ChangeEvent<HTMLInputElement>) => {
-        console.log("name", v.target.name)
-        setVolumes(prev => {
-            console.log("prev", prev)
+    const onSubmit: SubmitHandler<Inputs> = useCallback((data__) => {
+        // TODO use fp-ts for that
+        const data: NewFlavor = {
+            ...data__,
+            volume: processArrayToString(data__.volume),
+            cityId: getCityByName(data__.cityId ?? "")?.id
+        }
 
-            return {
-                ...prev,
-                [v.target.name]:
-                v.target.checked
-            }
-        })
-    }
+        const func: () => Promise<IHPRecord<"flavors">> =
+            (mode === "edit" && currentFlavor) ?
+                editFlavor(getFlavor(currentFlavor, data))
+                : createFlavor(data)
+
+        return makeRequest(func, onSuccess, onError)
+    }, [mode, currentFlavor, onSuccess, onError])
 
     return <DialogLayout
         isOpen={isOpen}
-        onClose={onClose}
-        onCancel={onClose}
-        onSubmit={() => {
-            makeRequest(onSubmit, onSuccess, onError)
+        onClose={() => {
+            onClose()
+            resetForm()
+            resetField("name")
         }}
+        onCancel={() => {
+            onClose()
+            resetForm()
+        }}
+        onSubmit={handleSubmit(onSubmit)}
         title={title}
     >
         <Stack direction={'column'} spacing={2}>
 
-            <TextField
-                variant={"standard"}
-                title={"Название"}
-                label={"Название"}
-                name={"flavorName"}
-                value={name}
-                onChange={(v) => setName(v.target.value)}
+            <Controller
+                rules={{
+                    required: {
+                        message: "Название не может быть пустым",
+                        value: true,
+                    }
+                }}
+                control={control}
+                name={"name"}
+                render={({field}) => <TextField
+                    label={"Название"}
+                    title={"Название"}
+                    variant={"standard"}
+                    {...field}
+                    error={!!errors.name}
+                    helperText={errors.name?.message}
+                />}
             />
-            <TextField
-                variant={"standard"}
-                title={"Бренд"}
-                label={"Бренд"}
-                name={"flavorBrand"}
-                value={brand}
-                onChange={(v) => setBrand(v.target.value)}
+            <Controller
+                rules={{
+                    required: {
+                        message: "Бренд не может быть пустым",
+                        value: true,
+                    }
+                }}
+                control={control}
+                name={"brand"}
+                render={({field}) => <TextField
+                    label={"Бренд"}
+                    title={"Бренд"}
+                    variant={"standard"}
+                    {...field}
+                    error={!!errors.brand}
+                    helperText={errors.brand?.message}
+                />}
             />
-            <TextField
-                variant={"standard"}
-                title={"Артикул"}
-                label={"Артикул"}
-                name={"flavorBrand"}
-                value={articleNumber}
-                onChange={(v) => setArticleNumber(v.target.value)}
-            />
-
-            <FormControl>
-                <InputLabel id="flavor-sex-label">Пол</InputLabel>
-                <Select
-                    labelId={"flavor-sex-label"}
-                    id={"flavor-sex"}
-                    variant={"outlined"}
-                    value={sex}
-                    onChange={(v: SelectChangeEvent<Sex>) => setSex(v.target.value)}
-                    title={"Пол"}
-                    label={"Пол"}
-                    name={"flavorSex"}
-                >
-                    <MenuItem value={sexValues[0]}>{sexTranslate?.[sexValues[0]]}</MenuItem>
-                    <MenuItem value={sexValues[1]}>{sexTranslate?.[sexValues[1]]}</MenuItem>
-                    <MenuItem value={sexValues[2]}>{sexTranslate?.[sexValues[2]]}</MenuItem>
-                </Select>
-            </FormControl>
 
 
-            <FormControl>
-                <InputLabel id="flavor-category-label">Категория</InputLabel>
-                <Select
-                    labelId={"flavor-category-label"}
-                    id={"flavor-category"}
-                    variant={"outlined"}
-                    value={category}
-                    onChange={(v: SelectChangeEvent<Category>) => setCategory(v.target.value)}
-                    title={"Категория"}
-                    label={"Категория"}
-                    name={"flavorCategory"}
-                >
-                    <MenuItem value={categoryValues[0]}>{categoryValues[0]}</MenuItem>
-                    <MenuItem value={categoryValues[1]}>{categoryValues[1]}</MenuItem>
-                    <MenuItem value={categoryValues[2]}>{categoryValues[2]}</MenuItem>
-                </Select>
-            </FormControl>
-
-
-            <FormControl>
-                <InputLabel id="flavor-city-label">Город</InputLabel>
-                <Select
-                    labelId={"flavor-city-label"}
-                    id={"flavor-city"}
-                    variant={"outlined"}
-                    value={cities?.find(city => city.id === cityId)?.name ?? ""}
-                    onChange={(v: SelectChangeEvent) => {
-                        const name = v.target.value
-                        const id = cities?.find(city => city.name === name)?.id
-                        id && setCityId(id)
+            <Stack direction={"row"} spacing={2}>
+                <Controller
+                    control={control}
+                    name={"sex"}
+                    render={({field}) => <FormControl fullWidth>
+                        <InputLabel id="flavor-sex-label">Пол</InputLabel>
+                        <Select
+                            labelId={"flavor-sex-label"}
+                            id={"flavor-sex"}
+                            variant={"outlined"}
+                            title={"Пол"}
+                            label={"Пол"}
+                            {...field}
+                        >
+                            <MenuItem value={sexValues[0]}>{sexTranslate?.[sexValues[0]]}</MenuItem>
+                            <MenuItem value={sexValues[1]}>{sexTranslate?.[sexValues[1]]}</MenuItem>
+                            <MenuItem value={sexValues[2]}>{sexTranslate?.[sexValues[2]]}</MenuItem>
+                        </Select>
+                    </FormControl>}
+                />
+                <Controller
+                    rules={{
+                        required: {
+                            message: "Артикул не может быть пустым",
+                            value: true,
+                        }
                     }}
-                    title={"Город"}
-                    label={"Город"}
-                    name={"flavorCategory"}
-                >
-                    {cities?.map(city => <MenuItem key={city.id} value={city.name}>{city.name}</MenuItem>)}
-                </Select>
-            </FormControl>
+                    control={control}
+                    name={"articleNumber"}
+                    render={({field}) => <TextField
+                        fullWidth
+                        label={"Артикул"}
+                        title={"Артикул"}
+                        variant={"standard"}
+                        {...field}
+                        error={!!errors.articleNumber}
+                        helperText={errors.articleNumber?.message}
+                    />}
+                />
+            </Stack>
 
-
-            <FormGroup>
-                <FormLabel component="legend">Доступные объемы</FormLabel>
-                <Stack direction={"row"}>
-                    <FormControlLabel
-                        control={
-                            <Checkbox checked={small} onChange={handleCheckboxChange} name={"30"}/>
+            <Stack direction={"row"} spacing={2}>
+                <Controller
+                    control={control}
+                    name={"category"}
+                    render={({field}) => <FormControl fullWidth>
+                        <InputLabel id="flavor-category-label">Категория</InputLabel>
+                        <Select
+                            labelId={"flavor-category-label"}
+                            id={"flavor-category"}
+                            variant={"outlined"}
+                            title={"Категория"}
+                            label={"Категория"}
+                            {...field}
+                        >
+                            <MenuItem value={categoryValues[0]}>{categoryValues[0]}</MenuItem>
+                            <MenuItem value={categoryValues[1]}>{categoryValues[1]}</MenuItem>
+                            <MenuItem value={categoryValues[2]}>{categoryValues[2]}</MenuItem>
+                        </Select>
+                    </FormControl>}
+                />
+                <Controller
+                    rules={{
+                        required: {
+                            message: "Город не может быть пустым",
+                            value: true,
                         }
-                        label={"30"}
-                    />
-                    <FormControlLabel
-                        control={
-                            <Checkbox checked={medium} onChange={handleCheckboxChange} name={"50"}/>
-                        }
-                        label={"50"}
-                    />
-                    <FormControlLabel
-                        control={
-                            <Checkbox checked={big} onChange={handleCheckboxChange} name={"100"}/>
-                        }
-                        label={"100"}
-                    />
-                </Stack>
+                    }}
+                    control={control}
+                    render={({field}) => <FormControl fullWidth>
+                        <InputLabel id="flavor-city-label">Город</InputLabel>
+                        <Select
+                            labelId={"flavor-city-label"}
+                            id={"flavor-city"}
+                            variant={"outlined"}
+                            title={"Город"}
+                            label={"Город"}
+                            {...field}
+                            error={!!errors.cityId}
+                            value={cities?.find(city => city.id === field.value)?.name}
+                        >
+                            {cities?.map(city => <MenuItem key={city.id} value={city.name}>{city.name}</MenuItem>)}
+                        </Select>
+                    </FormControl>}
+                    name={"cityId"}
+                />
 
-            </FormGroup>
-
+            </Stack>
+            <Checkbox<Inputs>
+                options={["30", "50", "100"]}
+                control={control}
+                name={"volume"}
+                values={processStringToArray(currentFlavor?.volume ?? "")}
+            />
         </Stack>
     </DialogLayout>
 }

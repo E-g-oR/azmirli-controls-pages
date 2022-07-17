@@ -7,17 +7,18 @@ import {
     Typography
 } from "@mui/material";
 import Table, {Config} from "../../library/table";
-import {useQuery} from "thin-backend-react";
-import {City, query} from "thin-backend";
+import {City} from "thin-backend";
 import {DeleteOutlined, EditOutlined} from "@mui/icons-material";
 import TableHeader from "../../library/table/table-head";
 import TableRow from "../../library/table/table-row";
 import CitiesDialog from "./dialog";
 import useStoreDialogCity from "../../../stores/dialog/cities-store";
 import FastActionButton from "../../library/fast-action-button";
+import useStoreCities from "../../../stores/cities";
 
 
 const CitiesEditor: FC = () => {
+    const cities = useStoreCities(state=> state.cities)
     const setIsOpen = useStoreDialogCity(state => state.setIsOpen)
     const setCreateCity = useStoreDialogCity(state => state.setCreateCity)
     const setEditCity = useStoreDialogCity(state => state.setEditCity)
@@ -70,8 +71,6 @@ const CitiesEditor: FC = () => {
         render: (v) => <>{v.facebook}</>
     },], [setEditCity])
 
-
-    const cities = useQuery(query("cities").orderBy("subDomain"))
     return <>
         <Typography variant={"h3"} sx={{paddingBottom: 2}} >Редактор городов</Typography>
         {cities ?
