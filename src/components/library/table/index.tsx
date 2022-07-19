@@ -37,7 +37,9 @@ function Table<T>(props: Props<T>): JSX.Element {
     }), [props.gap, props.config])
 
     return <tableContext.Provider value={context}>
-        <Paper variant={"outlined"}>
+        <Paper
+            variant={"outlined"}
+        >
             <table className={styles.table}>
                 {props.children}
             </table>

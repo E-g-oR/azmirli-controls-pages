@@ -3,6 +3,7 @@ import {tableContext} from "./index";
 
 import * as styles from "./table.css"
 import clsx from "clsx";
+import {useTheme} from "@mui/material";
 
 interface Props {
     className?: string,
@@ -11,6 +12,7 @@ interface Props {
 
 const TableHeader: FC<Props> = ({className, cellClass}) => {
     const {config, gap} = useContext(tableContext)
+    const theme = useTheme()
 
     const gridTemplateColumns = useMemo(() =>
             config.map(col => col.size).join(" ")
@@ -18,13 +20,14 @@ const TableHeader: FC<Props> = ({className, cellClass}) => {
 
     return <thead>
     <tr
-        className={clsx(styles.tableHead, className)}
+        className={clsx(styles.tr, className)}
         style={{
             gridTemplateColumns,
-            gridGap: gap
+            gridGap: gap,
+            backgroundColor: theme.palette.primary.light
         }}
     >
-        {config.map(column => <th key={column.key} className={clsx(styles.tableCell, cellClass)}>{column.header}</th>)}
+        {config.map(column => <th key={column.key} className={clsx(styles.th, cellClass)}>{column.header}</th>)}
     </tr>
     </thead>
 }

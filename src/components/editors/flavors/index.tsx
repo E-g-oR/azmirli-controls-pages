@@ -11,20 +11,9 @@ import useStoreFlavorsDialog from "../../../stores/dialog/flavors-store";
 import FlavorsEditDialog, {processStringToArray} from "./dialog";
 import {useSnackbar} from "notistack";
 import {makeRequest} from "../cities/dialog";
-// import {pipe} from "fp-ts/es6/function";
-// import * as RR from "fp-ts/ReadonlyRecord"
-// import * as A from "fp-ts/ReadonlyArray"
-// import * as S from "fp-ts/string"
+import useStoreCities from "../../../stores/cities";
 
 const deleteFlavor = (id: UUID) => deleteRecord("flavors", id)
-
-// const getVolumesUI = (input: string) => pipe(
-//     input,
-//     getVolumesFromString,
-//     RR.filter(volume => !!volume),
-//     RR.keys,
-//     A.intercalate(S.Monoid)(", ")
-// )
 
 const FlavorsEditor: FC = () => {
     const {enqueueSnackbar} = useSnackbar()
@@ -39,6 +28,8 @@ const FlavorsEditor: FC = () => {
     const setIsOpen = useStoreFlavorsDialog(state => state.setIsOpen)
     const setCreateFlavor = useStoreFlavorsDialog(state => state.setCreateFlavor)
     const setEditFlavor = useStoreFlavorsDialog(state => state.setEditFlavor)
+    const cities = useStoreCities(state => state.cities)
+    const getCityById = useStoreCities(state => state.getCityById)
 
     const onClose = () => {
         setCreateFlavor()
@@ -69,15 +60,25 @@ const FlavorsEditor: FC = () => {
             </Tooltip>
         </Stack>
     }, {
-        key: "name",
-        header: "Название",
+        key: "cityName",
+        header: "Город",
         size: "max-content",
-        render: (v) => <>{v.name}</>
+        render: (v) => <span>{getCityById(v?.cityId ?? "")?.name}</span>
+    }, {
+        key: "sex",
+        header: "Пол",
+        size: "max-content",
+        render: (v) => <span>{v.sex}</span>
     }, {
         key: "brand",
         header: "Бренд",
         size: "max-content",
         render: (v) => <>{v.brand}</>
+    }, {
+        key: "name",
+        header: "Название",
+        size: "max-content",
+        render: (v) => <>{v.name}</>
     }, {
         key: "category",
         header: "Категория",
@@ -87,21 +88,13 @@ const FlavorsEditor: FC = () => {
         key: "volumes",
         header: "Объемы",
         size: "max-content",
-        render: (v) => {
-            // console.log("inside render func", v.volume)
-            return <>{Array.isArray(v.volume) ? v.volume.toString() : processStringToArray(v.volume ?? "").toString()}</>
-        }
-    }, {
-        key: "sex",
-        header: "Пол",
-        size: "max-content",
-        render: (v) => <>{v.sex}</>
+        render: (v) => <span>{processStringToArray(v.volume ?? "").toString()}</span>
     }, {
         key: "articleNumber",
         header: "Артикул",
         size: "max-content",
-        render: (v) => <>{v.articleNumber}</>
-    },], [])
+        render: (v) => <span>{v.articleNumber}</span>
+    },], [cities, getCityById])
 
 
     const flavors = useQuery(query("flavors"))
@@ -109,7 +102,10 @@ const FlavorsEditor: FC = () => {
         <Typography variant={"h3"} sx={{paddingBottom: 2}}>Редактор ароматов</Typography>
         <Table config={config}>
             <TableHeader/>
+            <tbody>
             {flavors?.map(flavor => <TableRow key={flavor.id} row={flavor}/>)}
+            </tbody>
+
         </Table>
 
         <FastActionButton onClick={setCreateFlavor}/>

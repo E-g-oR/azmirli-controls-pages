@@ -38,7 +38,7 @@
     "@types/node": "^17.0.42",
     "@types/react": "^18.0.0",
     "@types/react-dom": "^18.0.0",
-    "@types/thin-backend": "https://thin.dev/types/5ebbe95c-653b-4ba9-994f-93b30439bcad/ennOYDTfWuZoLMtUDVQXZahrtjYsZuaW",
+    "@types/thin-backend": "https://thin.dev/types/563bde0f-ece1-4851-89d7-c7c9686ac682/lNfsVCMLgFfUOrJPKrWVEkCaHtIPslNp",
     "@typescript-eslint/eslint-plugin": "^5.27.1",
     "@typescript-eslint/parser": "^5.27.1",
     "@vanilla-extract/vite-plugin": "^3.2.1",

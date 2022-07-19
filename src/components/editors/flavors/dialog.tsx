@@ -10,7 +10,6 @@ import {
     Stack,
     TextField
 } from "@mui/material";
-// import * as RR from "fp-ts/ReadonlyRecord"
 import {pipe} from "fp-ts/es6/function"
 import * as A from "fp-ts/ReadonlyArray"
 import * as S from "fp-ts/string"
@@ -41,19 +40,13 @@ const sexTranslate: Record<Sex, SexRussian> = {
 type Category = "lux" | "selective" | "exclusive"
 const categoryValues: ReadonlyArray<Category> = ["lux", "exclusive", "selective"] as const
 
-// type Volume = "30" | "50" | "100"
-// const VolumeKeys: ReadonlyArray<string> = ["30", "50", "100"]
-
-// type Volumes = RR.ReadonlyRecord<Volume, boolean>
-// const defaultVolumes: Volumes = {
-//     30: false,
-//     50: false,
-//     100: false,
-// }
-
+type Volume = "30" | "50" | "100"
+const defaultVolumes: Array<Volume> = ["30", "50", "100"]
 
 export const processArrayToString = (input: ReadonlyArray<string>) => pipe(
     input,
+    A.map(S.trim),
+    A.filter(item => !!item),
     A.intercalate(S.Monoid)(", "),
     arrayString => `{${arrayString}}`
 )
@@ -63,7 +56,7 @@ export const isArrayLiteral = (input: string | undefined) => {
     return (input && input?.startsWith("{") && input?.endsWith("}")) ? O.some(input) : O.none
 }
 
-export const processStringToArray = (input: string): ReadonlyArray<string> => pipe(
+export const processStringToArray = (input: string | Array<string>): ReadonlyArray<string> => Array.isArray(input) ? input : pipe(
     input,
     isArrayLiteral,
     O.fold(
@@ -82,8 +75,14 @@ const getFlavor = (currentFlavor: Flavor, newFlavor: NewFlavor) => ({
     ...newFlavor
 })
 
-type Inputs = NewFlavor & {
-    volume: Array<string>
+type Inputs = {
+    volumes: Array<Volume>,
+    name: string,
+    sex: Sex,
+    cityName: string,
+    brand: string,
+    category: Category,
+    articleNumber: string
 }
 
 const FlavorsEditDialog: FC<Props> = ({onClose}) => {
@@ -105,21 +104,25 @@ const FlavorsEditDialog: FC<Props> = ({onClose}) => {
         clearErrors
     } = useForm<Inputs>({
         defaultValues: {
-            ...currentFlavor,
-            cityId: getCityById(currentFlavor?.cityId ?? "")?.name ?? cities?.[0]?.name ?? ""
+            name: currentFlavor?.name ?? "",
+            articleNumber: currentFlavor?.articleNumber ?? "",
+            brand: currentFlavor?.brand ?? "",
+            category: currentFlavor?.category as Category ?? "lux",
+            cityName: getCityById(currentFlavor?.cityId ?? "")?.name ?? "",
+            sex: currentFlavor?.sex as Sex ?? "women",
+            volumes: processStringToArray(currentFlavor?.volume ?? "") as [] ?? defaultVolumes,
         }
     })
 
     const resetForm = useCallback(() => {
         reset({
             name: "",
-            id: "",
-            cityId: "",
-            volume: "",
+            cityName: "",
+            volumes: defaultVolumes,
             brand: "",
-            sex: "",
+            sex: "women",
             articleNumber: "",
-            category: "",
+            category: "lux",
         })
         clearErrors()
     }, [reset, clearErrors, currentFlavor])
@@ -141,17 +144,24 @@ const FlavorsEditDialog: FC<Props> = ({onClose}) => {
         setValue("name", currentFlavor?.name ?? "")
         setValue("brand", currentFlavor?.brand ?? "")
         setValue("articleNumber", currentFlavor?.articleNumber ?? "")
-        setValue("sex", currentFlavor?.sex ?? sexValues[2])
-        setValue("category", currentFlavor?.category ?? categoryValues[0])
-        setValue("cityId", currentFlavor?.cityId ?? cities?.[0].name)
+        setValue("sex", currentFlavor?.sex as Sex ?? "women")
+        setValue("category", currentFlavor?.category as Category ?? "lux")
+        setValue("volumes", processStringToArray(currentFlavor?.volume ?? "") as [] ?? [])
+        setValue("cityName", getCityById(currentFlavor?.cityId ?? "")?.name ?? "")
     }, [currentFlavor])
 
     const onSubmit: SubmitHandler<Inputs> = useCallback((data__) => {
+        const {volumes, name, sex, cityName, articleNumber, brand, category} = data__
+
         // TODO use fp-ts for that
         const data: NewFlavor = {
-            ...data__,
-            volume: processArrayToString(data__.volume),
-            cityId: getCityByName(data__.cityId ?? "")?.id
+            name,
+            sex,
+            volume: processArrayToString(volumes),
+            cityId: getCityByName(cityName ?? "")?.id ?? "",
+            articleNumber,
+            brand,
+            category,
         }
 
         const func: () => Promise<IHPRecord<"flavors">> =
@@ -294,21 +304,23 @@ const FlavorsEditDialog: FC<Props> = ({onClose}) => {
                             title={"Город"}
                             label={"Город"}
                             {...field}
-                            error={!!errors.cityId}
-                            value={cities?.find(city => city.id === field.value)?.name}
+                            error={!!errors.cityName}
                         >
                             {cities?.map(city => <MenuItem key={city.id} value={city.name}>{city.name}</MenuItem>)}
                         </Select>
                     </FormControl>}
-                    name={"cityId"}
+                    name={"cityName"}
                 />
 
             </Stack>
             <Checkbox<Inputs>
-                options={["30", "50", "100"]}
+                options={defaultVolumes}
                 control={control}
-                name={"volume"}
-                values={processStringToArray(currentFlavor?.volume ?? "")}
+                name={"volumes"}
+                values={Array.isArray(currentFlavor?.volume) ?
+                    currentFlavor?.volume as ReadonlyArray<string>
+                    : processStringToArray(currentFlavor?.volume ?? "")
+                    ?? []}
             />
         </Stack>
     </DialogLayout>

@@ -17,6 +17,7 @@ function Checkbox<C>({options, name, control, values}: Props<C>) {
         name,
     })
     const [value, setValue] = useState<Array<string>>(values as Array<string>)
+    console.log(value)
     return <FormGroup>
         <FormLabel component={"legend"}>Доступные объемы</FormLabel>
         <Stack direction={"row"}>
@@ -24,6 +25,7 @@ function Checkbox<C>({options, name, control, values}: Props<C>) {
                 control={<CheckboxMUI
                     checked={value.includes(option)}
                     onChange={(e) => {
+                        // TODO use fp-ts
                         setValue(prev => {
                             const next = !prev.includes(e.target.value) ? [...prev, e.target.value] : prev.filter(item => item !== e.target.value)
                             field.onChange(next)

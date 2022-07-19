@@ -22,12 +22,12 @@ function TableRow<T>({className, cellClass, row}: Props<T>): JSX.Element {
         , [config])
 
     return <tr
-        className={className}
+        className={clsx(styles.tr, className)}
         style={{
             gridTemplateColumns,
             gridGap: gap
         }}>
-        {config.map(config => <td key={config.key} className={clsx(styles.tableCell, cellClass) }>
+        {config.map(config => <td key={config.key} className={clsx(styles.td, cellClass)}>
             {config.render(row)}
         </td>)}
     </tr>
