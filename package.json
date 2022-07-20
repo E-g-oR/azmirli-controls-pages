@@ -6,7 +6,9 @@
   "scripts": {
     "dev": "vite",
     "build": "vite build",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "predeploy": "yarn run build",
+    "deploy": "gh-pages -d build"
   },
   "dependencies": {
     "@emotion/react": "^11.9.0",
@@ -18,6 +20,7 @@
     "dotenv": "^16.0.1",
     "fp-ts": "^2.12.1",
     "fp-ts-routing": "^0.5.4",
+    "gh-pages": "^4.0.0",
     "io-ts": "^2.2.16",
     "notistack": "^2.0.5",
     "react": "^18.0.0",
