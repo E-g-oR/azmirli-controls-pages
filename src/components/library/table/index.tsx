@@ -39,6 +39,9 @@ function Table<T>(props: Props<T>): JSX.Element {
     return <tableContext.Provider value={context}>
         <Paper
             variant={"outlined"}
+            sx={{
+                overflowX: "auto",
+            }}
         >
             <table className={styles.table}>
                 {props.children}

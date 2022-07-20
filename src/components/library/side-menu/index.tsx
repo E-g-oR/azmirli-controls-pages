@@ -1,32 +1,28 @@
-import {FC, ReactNode, useEffect} from "react";
+import {FC} from "react";
 import {
-    Box, CSSObject,
+    Box,
+    CSSObject,
     Divider,
     List,
     ListItem,
     ListItemButton,
     ListItemIcon,
-    ListItemText, styled,
-    SvgIcon, Theme,
-    Toolbar, useMediaQuery, useTheme
+    ListItemText,
+    styled,
+    SvgIcon,
+    Theme,
+    Toolbar,
+    useTheme
 } from "@mui/material";
-import {ROUTES} from "../../../utils/routing";
 import MuiDrawer from "@mui/material/Drawer"
-import SpaIcon from '@mui/icons-material/Spa';
-import BusinessIcon from '@mui/icons-material/Business';
-import ImportContactsIcon from '@mui/icons-material/ImportContacts';
-import BlenderIcon from '@mui/icons-material/Blender';
 import {useNavigate, useLocation} from "react-router-dom";
 import CssBaseline from "@mui/material/CssBaseline";
-import useStoreMenu from "../../../stores/menu";
+import {sideMenuId} from "../../../stores/menu";
+import {MenuItem} from "../navigation";
+import {createPortal} from "react-dom";
 
 const drawerWidth = 240;
 
-interface MenuItem {
-    name: string,
-    icon: ReactNode,
-    link: string,
-}
 
 const openedMixin = (theme: Theme): CSSObject => ({
     width: drawerWidth,
@@ -49,28 +45,6 @@ const closedMixin = (theme: Theme): CSSObject => ({
     },
 });
 
-const menu: ReadonlyArray<MenuItem> = [
-    {
-        icon: <BusinessIcon/>,
-        link: ROUTES.cities,
-        name: "Города"
-    },
-    {
-        name: "Ароматы",
-        link: ROUTES.flavors,
-        icon: <SpaIcon/>
-    },
-    {
-        name: "Адреса",
-        link: ROUTES.addresses,
-        icon: <ImportContactsIcon/>
-    },
-    {
-        name: "Составы",
-        link: ROUTES.structures,
-        icon: <BlenderIcon/>
-    }
-]
 
 const Drawer = styled(MuiDrawer, {shouldForwardProp: (prop) => prop !== 'open'})(
     ({theme, open}) => ({
@@ -89,71 +63,71 @@ const Drawer = styled(MuiDrawer, {shouldForwardProp: (prop) => prop !== 'open'})
     }),
 );
 
-const SideMenu: FC = () => {
+interface Props {
+    menu: ReadonlyArray<MenuItem>,
+    open?: boolean,
+}
+
+const SideMenu: FC<Props> = ({menu, open}) => {
+    const node = document.getElementById(sideMenuId)
     const navigate = useNavigate()
     const theme = useTheme()
-    const matches = useMediaQuery(theme.breakpoints.down("lg"))
     const location = useLocation()
-    const open = useStoreMenu(state => state.isOpen)
-    const setOpen = useStoreMenu(state => state.setOpen)
 
-    useEffect(() => {
-        matches && setOpen(false)
-    }, [matches])
-
-    return <Box>
-        <CssBaseline/>
-        {/*<AppBar/>*/}
-        <Drawer
-            open={open}
-            variant="permanent"
-        >
-            <Toolbar/>
-            <Box sx={{overflowX: 'hidden'}}>
-                <List>
-                    {menu.map(item => (
-                        <ListItem key={item.name} disablePadding>
-                            <ListItemButton
-                                onClick={() => navigate(item.link)}
-                                color={theme.palette.primary.main}
-                                selected={location.pathname === item.link}
-                                sx={{
-                                    justifyContent: open ? 'initial' : 'center',
-                                }}
-                            >
-                                <ListItemIcon
+    return node && createPortal(
+        <Box>
+            <CssBaseline/>
+            {/*<AppBar/>*/}
+            <Drawer
+                open={open}
+                variant="permanent"
+            >
+                <Toolbar/>
+                <Box sx={{overflowX: 'hidden'}}>
+                    <List>
+                        {menu.map(item => (
+                            <ListItem key={item.name} disablePadding>
+                                <ListItemButton
+                                    onClick={() => navigate(item.link)}
+                                    color={theme.palette.primary.main}
+                                    selected={location.pathname.includes(item.link)}
                                     sx={{
-                                        minWidth: 0,
-                                        justifyContent: 'center',
+                                        justifyContent: open ? 'initial' : 'center',
                                     }}
                                 >
-                                    <SvgIcon
-                                        color={location.pathname === item.link ? "primary" : "inherit"}
+                                    <ListItemIcon
+                                        sx={{
+                                            minWidth: 0,
+                                            justifyContent: 'center',
+                                        }}
                                     >
-                                        {item.icon}
-                                    </SvgIcon>
-                                </ListItemIcon>
-                                <ListItemText
-                                    sx={{
-                                        transition: theme.transitions.create(["opacity", "margin"], {
-                                            easing: theme.transitions.easing.sharp,
-                                            duration: theme.transitions.duration.leavingScreen,
-                                        }),
-                                        ml: open ? 3 : 0,
-                                        opacity: open ? 1 : 0,
-                                    }}
-                                    primary={item.name}
-                                />
-                            </ListItemButton>
+                                        <SvgIcon
+                                            color={location.pathname.includes(item.link) ? "primary" : "inherit"}
+                                        >
+                                            {item.icon}
+                                        </SvgIcon>
+                                    </ListItemIcon>
+                                    <ListItemText
+                                        sx={{
+                                            transition: theme.transitions.create(["opacity", "margin"], {
+                                                easing: theme.transitions.easing.sharp,
+                                                duration: theme.transitions.duration.leavingScreen,
+                                            }),
+                                            ml: open ? 3 : 0,
+                                            opacity: open ? 1 : 0,
+                                        }}
+                                        primary={item.name}
+                                    />
+                                </ListItemButton>
 
 
-                        </ListItem>
-                    ))}
-                </List>
-                <Divider/>
-            </Box>
-        </Drawer>
-    </Box>
+                            </ListItem>
+                        ))}
+                    </List>
+                    <Divider/>
+                </Box>
+            </Drawer>
+        </Box>, node)
 }
 
 export default SideMenu
