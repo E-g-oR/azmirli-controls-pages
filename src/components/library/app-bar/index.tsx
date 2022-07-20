@@ -1,16 +1,33 @@
 import {FC} from "react";
-import {AppBar as TopBar, Toolbar, Typography} from "@mui/material";
+import {AppBar as TopBar, Box, IconButton, Toolbar, Typography} from "@mui/material";
+import {Menu} from "@mui/icons-material";
+import useStoreMenu from "../../../stores/menu";
 
 const AppBar: FC = () => {
-    return <div>
+    const isOpen = useStoreMenu(state => state.isOpen)
+    const setIsOpen = useStoreMenu(state => state.setOpen)
+
+    return <Box>
         <TopBar position="fixed" sx={{zIndex: (theme) => theme.zIndex.drawer + 1}}>
-            <Toolbar>
-                <Typography variant="h6" noWrap component="div">
+            <Toolbar
+            sx={{
+                alignItems: "center",
+            }}
+            >
+
+                <IconButton
+                    edge={"start"}
+                    sx={{marginRight: 3}}
+                    onClick={() => setIsOpen(!isOpen)}
+                >
+                    <Menu/>
+                </IconButton>
+                <Typography variant={"h6"} noWrap component={"h6"}>
                     Админ панель Azmirli
                 </Typography>
             </Toolbar>
         </TopBar>
-    </div>
+    </Box>
 }
 
 export default AppBar

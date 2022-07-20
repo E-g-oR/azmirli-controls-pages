@@ -1,23 +1,24 @@
-import {FC, ReactNode} from "react";
+import {FC, ReactNode, useEffect} from "react";
 import {
-    Box,
+    Box, CSSObject,
     Divider,
-    Drawer,
     List,
     ListItem,
     ListItemButton,
     ListItemIcon,
-    ListItemText,
-    SvgIcon,
-    Toolbar
+    ListItemText, styled,
+    SvgIcon, Theme,
+    Toolbar, useMediaQuery, useTheme
 } from "@mui/material";
 import {ROUTES} from "../../../utils/routing";
-
+import MuiDrawer from "@mui/material/Drawer"
 import SpaIcon from '@mui/icons-material/Spa';
 import BusinessIcon from '@mui/icons-material/Business';
 import ImportContactsIcon from '@mui/icons-material/ImportContacts';
 import BlenderIcon from '@mui/icons-material/Blender';
-import {useNavigate} from "react-router-dom";
+import {useNavigate, useLocation} from "react-router-dom";
+import CssBaseline from "@mui/material/CssBaseline";
+import useStoreMenu from "../../../stores/menu";
 
 const drawerWidth = 240;
 
@@ -26,6 +27,27 @@ interface MenuItem {
     icon: ReactNode,
     link: string,
 }
+
+const openedMixin = (theme: Theme): CSSObject => ({
+    width: drawerWidth,
+    transition: theme.transitions.create('width', {
+        easing: theme.transitions.easing.sharp,
+        duration: theme.transitions.duration.enteringScreen,
+    }),
+    overflowX: 'hidden',
+});
+
+const closedMixin = (theme: Theme): CSSObject => ({
+    transition: theme.transitions.create('width', {
+        easing: theme.transitions.easing.sharp,
+        duration: theme.transitions.duration.leavingScreen,
+    }),
+    overflowX: 'hidden',
+    width: `calc(${theme.spacing(7)} + 2px)`,
+    [theme.breakpoints.up('sm')]: {
+        width: `calc(${theme.spacing(7)} + 2px)`,
+    },
+});
 
 const menu: ReadonlyArray<MenuItem> = [
     {
@@ -50,31 +72,80 @@ const menu: ReadonlyArray<MenuItem> = [
     }
 ]
 
+const Drawer = styled(MuiDrawer, {shouldForwardProp: (prop) => prop !== 'open'})(
+    ({theme, open}) => ({
+        width: open ? drawerWidth : 60,
+        flexShrink: 0,
+        whiteSpace: 'nowrap',
+        boxSizing: 'border-box',
+        ...(open && {
+            ...openedMixin(theme),
+            '& .MuiDrawer-paper': openedMixin(theme),
+        }),
+        ...(!open && {
+            ...closedMixin(theme),
+            '& .MuiDrawer-paper': closedMixin(theme),
+        }),
+    }),
+);
+
 const SideMenu: FC = () => {
     const navigate = useNavigate()
+    const theme = useTheme()
+    const matches = useMediaQuery(theme.breakpoints.down("lg"))
+    const location = useLocation()
+    const open = useStoreMenu(state => state.isOpen)
+    const setOpen = useStoreMenu(state => state.setOpen)
 
-    return <div>
+    useEffect(() => {
+        matches && setOpen(false)
+    }, [matches])
+
+    return <Box>
+        <CssBaseline/>
+        {/*<AppBar/>*/}
         <Drawer
+            open={open}
             variant="permanent"
-            sx={{
-                width: drawerWidth,
-                flexShrink: 0,
-                [`& .MuiDrawer-paper`]: {width: drawerWidth, boxSizing: 'border-box'},
-            }}
         >
             <Toolbar/>
-            <Box sx={{overflow: 'auto'}}>
+            <Box sx={{overflowX: 'hidden'}}>
                 <List>
                     {menu.map(item => (
                         <ListItem key={item.name} disablePadding>
-                            <ListItemButton color={"secondary"} onClick={() => navigate(item.link)}>
-                                <ListItemIcon>
-                                    <SvgIcon color={"primary"}>
+                            <ListItemButton
+                                onClick={() => navigate(item.link)}
+                                color={theme.palette.primary.main}
+                                selected={location.pathname === item.link}
+                                sx={{
+                                    justifyContent: open ? 'initial' : 'center',
+                                }}
+                            >
+                                <ListItemIcon
+                                    sx={{
+                                        minWidth: 0,
+                                        justifyContent: 'center',
+                                    }}
+                                >
+                                    <SvgIcon
+                                        color={location.pathname === item.link ? "primary" : "inherit"}
+                                    >
                                         {item.icon}
                                     </SvgIcon>
                                 </ListItemIcon>
-                                <ListItemText primary={item.name}/>
+                                <ListItemText
+                                    sx={{
+                                        transition: theme.transitions.create(["opacity", "margin"], {
+                                            easing: theme.transitions.easing.sharp,
+                                            duration: theme.transitions.duration.leavingScreen,
+                                        }),
+                                        ml: open ? 3 : 0,
+                                        opacity: open ? 1 : 0,
+                                    }}
+                                    primary={item.name}
+                                />
                             </ListItemButton>
+
 
                         </ListItem>
                     ))}
@@ -82,7 +153,7 @@ const SideMenu: FC = () => {
                 <Divider/>
             </Box>
         </Drawer>
-    </div>
+    </Box>
 }
 
 export default SideMenu
