@@ -15,5 +15,6 @@ Easy way to create/edit flavors, add new stores or edit any company's informatio
     - brands
     - recipes
 - add "confirm delete" dialog
-- realise ProtectedComponent
 - add loading screen
+
+[//]: # (- realise ProtectedComponent)

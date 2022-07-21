@@ -5,9 +5,13 @@ import {useQuery} from "thin-backend-react";
 import {query} from "thin-backend";
 import {Route, Routes} from "react-router-dom";
 import {ROUTES} from "./utils/routing";
-import AppLayout from "./components/library/layouts/app-layout";
+// import AppLayout from "./components/library/layouts/app-layout";
+import LoadingScreen from "./components/loading-screen/loading-screen";
+import {AnimatePresence} from "framer-motion";
+import {motion} from "framer-motion"
 // import ProtectedComponent from "./components/library/protected-component/protected-component";
 
+const AppLayout = lazy(() => import("./components/library/layouts/app-layout"))
 const CitiesEditor = lazy(() => import("./components/editors/cities"))
 const FlavorsEditor = lazy(() => import("./components/editors/flavors"))
 const NotFound = lazy(() => import("./components/library/not-found"))
@@ -24,21 +28,30 @@ const App: FC = () => {
     }, [requestCities, setCities])
 
     return <>
-        <Suspense fallback={<div className={""}>Loading...</div>}>
-            <Routes>
-                <Route path={ROUTES.root} element={<AppLayout/>}>
-                {/*<Route path={ROUTES.root} element={<ProtectedComponent>*/}
-                {/*    <AppLayout/>*/}
-                {/*</ProtectedComponent>}>*/}
-                    <Route path={ROUTES.cities} element={<CitiesEditor/>}/>
-                    <Route path={ROUTES.flavors} element={<FlavorsEditor/>}/>
-                    <Route path={ROUTES.addresses} element={<AddressesEditor/>}/>
-                    <Route path={ROUTES.structures} element={<StructuresEditor/>}/>
-                    <Route path={ROUTES.notFound} element={<NotFound/>}/>
-                    <Route path={"*"} element={<NotFound/>}/>
-                </Route>
-            </Routes>
-        </Suspense>
+        <AnimatePresence>
+            <motion.div
+                initial={{opacity: 0}}
+                animate={{opacity: 1}}
+                exit={{opacity: 0}}
+            >
+                <Suspense fallback={<LoadingScreen/>}>
+                    <Routes>
+                        <Route path={ROUTES.root} element={<AppLayout/>}>
+                            {/*<Route path={ROUTES.root} element={<ProtectedComponent>*/}
+                            {/*    <AppLayout/>*/}
+                            {/*</ProtectedComponent>}>*/}
+                            <Route path={ROUTES.cities} element={<CitiesEditor/>}/>
+                            <Route path={ROUTES.flavors} element={<FlavorsEditor/>}/>
+                            <Route path={ROUTES.addresses} element={<AddressesEditor/>}/>
+                            <Route path={ROUTES.structures} element={<StructuresEditor/>}/>
+                            <Route path={ROUTES.notFound} element={<NotFound/>}/>
+                            <Route path={"*"} element={<NotFound/>}/>
+                        </Route>
+                    </Routes>
+                </Suspense>
+            </motion.div>
+        </AnimatePresence>
+
     </>
 }
 

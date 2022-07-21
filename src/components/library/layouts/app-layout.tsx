@@ -4,8 +4,10 @@ import {bottomNavigationId, sideMenuId} from "../../../stores/menu";
 import {Box, Toolbar} from "@mui/material";
 import Navigation from "../navigation";
 import {Outlet} from "react-router-dom";
+// import LoadingScreen from "../../loading-screen/loading-screen";
 
 const AppLayout: FC = () => <>
+    {/*<LoadingScreen/>*/}
     <Box
         sx={{
             display: "flex",
@@ -25,7 +27,7 @@ const AppLayout: FC = () => <>
         >
             <Box component={"main"}>
                 <Toolbar/>
-                <Suspense fallback={<div>Loading...</div>} >
+                <Suspense fallback={<div>Loading...</div>}>
                     <Outlet/>
                 </Suspense>
 

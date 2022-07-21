@@ -20,6 +20,7 @@
     "dotenv": "^16.0.1",
     "fp-ts": "^2.12.1",
     "fp-ts-routing": "^0.5.4",
+    "framer-motion": "^6.5.1",
     "gh-pages": "^4.0.0",
     "io-ts": "^2.2.16",
     "notistack": "^2.0.5",
