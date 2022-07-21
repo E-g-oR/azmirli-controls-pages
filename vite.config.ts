@@ -33,7 +33,8 @@ export default defineConfig({
   // assetsInclude: ["jpg", "woff2", "woff", "ttf", "eot"].map(extension => "**/*."+ extension)
   assetsInclude: ["**/*.jpg", "**/*.svg", "**/*.png"],
   build: {
-    outDir: "./build"
+    outDir: "./build",
+    // assetsDir: ""
   },
   resolve: {
     alias: [

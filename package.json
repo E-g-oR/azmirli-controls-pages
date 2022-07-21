@@ -2,10 +2,10 @@
   "name": "azmirli-controls-pages",
   "homepage": "https://e-g-or.github.io/azmirli-controls-pages/",
   "private": true,
-  "version": "0.0.0",
+  "version": "0.0.1",
   "scripts": {
     "dev": "vite",
-    "build": "vite build",
+    "build": "vite build --base=/azmirli-controls-pages/",
     "preview": "vite preview",
     "predeploy": "yarn run build",
     "deploy": "gh-pages -d build"

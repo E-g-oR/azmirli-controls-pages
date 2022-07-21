@@ -1,12 +1,15 @@
-import {FC} from "react";
+import {FC, lazy} from "react";
 import {useLocation} from "react-router-dom";
 import {parseLocation} from "./utils/routing";
 import {match} from "ts-pattern";
-import CitiesEditor from "./components/editors/cities";
-import FlavorsEditor from "./components/editors/flavors";
-import NotFound from "./components/library/not-found";
-import AddressesEditor from "./components/editors/addresses";
-import StructuresEditor from "./components/editors/structures";
+
+
+const CitiesEditor = lazy(() => import("./components/editors/cities"))
+const FlavorsEditor = lazy(() => import("./components/editors/flavors"))
+const NotFound = lazy(() => import("./components/library/not-found"))
+const AddressesEditor = lazy(() => import("./components/editors/addresses"))
+const StructuresEditor = lazy(() => import("./components/editors/structures"))
+
 
 const Root: FC = () => {
     const location = useLocation()
