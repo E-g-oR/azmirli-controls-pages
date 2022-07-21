@@ -3,12 +3,11 @@ import {useMediaQuery, useTheme} from "@mui/material";
 import BusinessIcon from "@mui/icons-material/Business";
 import {ROUTES} from "../../../utils/routing";
 import SpaIcon from "@mui/icons-material/Spa";
-import ImportContactsIcon from "@mui/icons-material/ImportContacts";
 import BlenderIcon from "@mui/icons-material/Blender";
 import SideMenu from "../side-menu";
 import useStoreMenu from "../../../stores/menu";
 import BottomNavigation from "../bottom-navigation";
-
+import ShoppingBag from "@mui/icons-material/ShoppingBag";
 
 export interface MenuItem {
     name: string,
@@ -28,9 +27,9 @@ export const menu: ReadonlyArray<MenuItem> = [
         icon: <SpaIcon/>
     },
     {
-        name: "Адреса",
+        name: "Магазины",
         link: ROUTES.addresses,
-        icon: <ImportContactsIcon/>
+        icon: <ShoppingBag/>
     },
     {
         name: "Составы",

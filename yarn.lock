@@ -692,6 +692,10 @@
   resolved "https://registry.npmjs.org/@types/scheduler/-/scheduler-0.16.2.tgz"
   integrity sha512-hppQEBDmlwhFAXKJX2KnWLYu5yMfi91yazPb2l+lbJiwW+wdo1gNeRA+3RgNSO39WYX2euey41KEwnqesU2Jew==
 
+"@types/thin-backend@https://thin.dev/types/34409058-d515-4e41-994d-0391f3eac4e8/fzfVOSWoBFaNyDRNbGLQrKwSuXzxYfgI":
+  version "1.0.0"
+  resolved "https://thin.dev/types/34409058-d515-4e41-994d-0391f3eac4e8/fzfVOSWoBFaNyDRNbGLQrKwSuXzxYfgI#3bc80bfbb8dbd0a9fb7e99bcdd4af58aadc8bcd2"
+
 "@types/thin-backend@https://thin.dev/types/563bde0f-ece1-4851-89d7-c7c9686ac682/lNfsVCMLgFfUOrJPKrWVEkCaHtIPslNp":
   version "1.0.0"
   resolved "https://thin.dev/types/563bde0f-ece1-4851-89d7-c7c9686ac682/lNfsVCMLgFfUOrJPKrWVEkCaHtIPslNp#b6d3549af1aba77e8a789a7f3531ec9921de6c46"

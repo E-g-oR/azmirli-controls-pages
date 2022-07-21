@@ -1,10 +1,14 @@
 import {lit, end, Route, parse, format} from "fp-ts-routing/es6";
 import {zero} from "fp-ts-routing";
 
-export type Tag = "Cities" | "Flavors" | "Addresses" | "Structures" | 'NotFound'
+export type Tag = "Root" | "Cities" | "Flavors" | "Addresses" | "Structures" | 'NotFound'
 
 type DefaultLocation = {
     readonly _tag: Tag
+}
+
+export interface Root extends DefaultLocation {
+    readonly _tag: "Root"
 }
 
 export interface Cities extends DefaultLocation {
@@ -27,8 +31,9 @@ interface NotFound extends DefaultLocation {
     readonly _tag: 'NotFound'
 }
 
-export type Location_ = Cities | Addresses | Structures | Flavors | NotFound
+export type Location_ = Root | Cities | Addresses | Structures | Flavors | NotFound
 
+const root: Location_ = {_tag: "Root"}
 const home: Location_ = {_tag: "Cities"}
 const cities: Location_ = home
 const flavors: Location_ = {_tag: "Flavors"}
@@ -46,7 +51,7 @@ const structuresMatch = lit("structures").then(end)
 const notFoundMatch = lit("notFound").then(end)
 
 const router = zero<Location_>()
-    .alt(defaults.parser.map(() => home))
+    .alt(defaults.parser.map(() => root))
     .alt(homeMatch.parser.map(() => home))
     .alt(citiesMatch.parser.map(() => cities))
     .alt(flavorsMatch.parser.map(() => flavors))
@@ -58,6 +63,7 @@ const router = zero<Location_>()
 export const parseLocation = (s: string): Location_ => parse(router, Route.parse(s), notFound)
 
 interface Routes {
+    root: string,
     home: string,
     cities: string,
     flavors: string,
@@ -67,6 +73,7 @@ interface Routes {
 }
 
 export const ROUTES: Routes = {
+    root: format(defaults.formatter, {}),
     home: format(homeMatch.formatter, {}),
     cities: format(citiesMatch.formatter, {}),
     flavors: format(flavorsMatch.formatter, {}),
