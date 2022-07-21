@@ -1,0 +1,1 @@
+import{n as s,m as e}from"./index.115109fe.js";function n(t){return e("MuiListItemIcon",t)}const i=s("MuiListItemIcon",["root","alignItemsFlexStart"]);var o=i;function r(t){return e("MuiListItemText",t)}const a=s("MuiListItemText",["root","multiline","dense","inset","primary","secondary"]);var m=a;export{r as a,o as b,n as g,m as l};
