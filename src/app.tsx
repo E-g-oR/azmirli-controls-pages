@@ -2,7 +2,7 @@ import {FC, useEffect, Suspense, lazy} from 'react'
 import 'thin-backend-react/auth.css'
 import useStoreCities from "./stores/cities";
 import {useQuery} from "thin-backend-react";
-import {query} from "thin-backend";
+import {query, } from "thin-backend";
 import {Route, Routes} from "react-router-dom";
 import {ROUTES} from "./utils/routing";
 // import AppLayout from "./components/library/layouts/app-layout";

@@ -1,7 +1,7 @@
 import {FC, useCallback, useEffect} from "react";
 import DialogLayout from "../../dialog";
 import useStoreFlavorsDialog from "../../../stores/dialog/flavors-store";
-import {createRecord, Flavor, IHPRecord, NewFlavor, updateRecord} from "thin-backend";
+import {createRecord, Flavor, IHPRecord, NewFlavor, updateRecord, updateRecords} from "thin-backend";
 import {
     FormControl,
     InputLabel,
@@ -23,7 +23,10 @@ import useStoreCities from "../../../stores/cities";
 const createFlavor = (newFlavor: NewFlavor) => () => createRecord("flavors", newFlavor)
 const editFlavor = (flavor: Flavor) => () => updateRecord("flavors", flavor.id, flavor)
 
-
+updateRecords("flavors", [""], {
+    name: ""
+})
+// Promise.
 interface Props {
     onClose: () => void,
 }

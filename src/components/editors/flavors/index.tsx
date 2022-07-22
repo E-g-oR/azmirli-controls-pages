@@ -18,6 +18,12 @@ const deleteFlavor = (id: UUID) => deleteRecord("flavors", id)
 const FlavorsEditor: FC = () => {
     const {enqueueSnackbar} = useSnackbar()
 
+    const flavors = useQuery(query("flavors"))
+
+    // const flavorsFiltered = useQuery(query("flavors").("volume", "50"))
+
+    // console.log(flavorsFiltered)
+
     const onDeleteSuccess = () => {
         enqueueSnackbar("Аромат был успешно удален.", {variant: "success"})
     }
@@ -97,7 +103,7 @@ const FlavorsEditor: FC = () => {
     },], [cities, getCityById])
 
 
-    const flavors = useQuery(query("flavors"))
+
     return <>
         <Typography variant={"h3"} sx={{paddingBottom: 2}}>Редактор ароматов</Typography>
         <Table config={config}>
