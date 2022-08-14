@@ -15,64 +15,71 @@ import CitiesDialog from "./cities-dialog";
 import useStoreDialogCity from "../../../stores/dialog/cities-store";
 import FastActionButton from "../../library/fast-action-button";
 import useStoreCities from "../../../stores/cities";
-
+// import Button from "@mui/material/Button";
+import Button from "@mui/joy/Button"
 
 const CitiesEditor: FC = () => {
-    const cities = useStoreCities(state=> state.cities)
+    const cities = useStoreCities(state => state.cities)
     const setIsOpen = useStoreDialogCity(state => state.setIsOpen)
     const setCreateCity = useStoreDialogCity(state => state.setCreateCity)
     const setEditCity = useStoreDialogCity(state => state.setEditCity)
 
 
-    const config: ReadonlyArray<Config<City>> = useMemo(()=> [
+    const config: ReadonlyArray<Config<City>> = useMemo(() => [
         {
-        key: "actions",
-        header: "Действия",
-        size: "max-content",
-        render: (v) => <Stack
-            direction={"row"}
-            spacing={1}
-        >
-            <Tooltip title={"Редактировать"}>
-                <IconButton onClick={() => setEditCity(v)}>
-                    <EditOutlined/>
-                </IconButton>
-            </Tooltip>
-            <Tooltip title={"Удалить"}>
-                <IconButton onClick={() => console.log("delete", v.name)}>
-                    <DeleteOutlined/>
-                </IconButton>
-            </Tooltip>
-        </Stack>
-    }, {
-        key: "name",
-        header: "Имя",
-        size: "max-content",
-        render: (v) => <>{v.name}</>
-    }, {
-        key: "sub_domain",
-        header: "Поддомен",
-        size: "max-content",
-        render: (v) => <>{v.subDomain}</>
-    }, {
-        key: "instagram",
-        header: "Инстаграм",
-        size: "300px",
-        render: (v) => <>{v.instagram}</>
-    }, {
-        key: "vkontakte",
-        header: "ВКонтакте",
-        size: "300px",
-        render: (v) => <>{v.vkontakte}</>
-    }, {
-        key: "facebook",
-        header: "Фейсбук",
-        size: "300px",
-        render: (v) => <>{v.facebook}</>
-    },], [setEditCity])
+            key: "actions",
+            header: "Действия",
+            size: "max-content",
+            render: (v) => <Stack
+                direction={"row"}
+                spacing={1}
+            >
+                <Tooltip title={"Редактировать"}>
+                    <IconButton onClick={() => setEditCity(v)}>
+                        <EditOutlined/>
+                    </IconButton>
+                </Tooltip>
+                <Tooltip title={"Удалить"}>
+                    <IconButton onClick={() => console.log("delete", v.name)}>
+                        <DeleteOutlined/>
+                    </IconButton>
+                </Tooltip>
+            </Stack>
+        }, {
+            key: "name",
+            header: "Имя",
+            size: "max-content",
+            render: (v) => <>{v.name}</>
+        }, {
+            key: "sub_domain",
+            header: "Поддомен",
+            size: "max-content",
+            render: (v) => <>{v.subDomain}</>
+        }, {
+            key: "instagram",
+            header: "Инстаграм",
+            size: "300px",
+            render: (v) => <>{v.instagram}</>
+        }, {
+            key: "vkontakte",
+            header: "ВКонтакте",
+            size: "300px",
+            render: (v) => <>{v.vkontakte}</>
+        }, {
+            key: "facebook",
+            header: "Фейсбук",
+            size: "300px",
+            render: (v) => <>{v.facebook}</>
+        },], [setEditCity])
 
     return <>
-        <Typography variant={"h3"} sx={{paddingBottom: 2}} >Редактор городов</Typography>
+        <Typography variant={"h3"} sx={{paddingBottom: 2}}>Редактор городов</Typography>
+        <Button
+            variant={"solid"}
+            onClick={() => console.log("click")}
+            color={"primary"}
+        >Hey you</Button>
+        {/*<ButtonJoy>Button from Joy</ButtonJoy>*/}
         {cities ?
             <Table config={config}>
                 <TableHeader/>
