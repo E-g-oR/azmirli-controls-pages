@@ -1,7 +1,7 @@
 import {FC, useCallback, useEffect} from "react";
-import DialogLayout from "../../dialog";
+import DialogLayout from "../../dialog/dialog";
 import useStoreFlavorsDialog from "../../../stores/dialog/flavors-store";
-import {createRecord, Flavor, IHPRecord, NewFlavor, updateRecord, updateRecords} from "thin-backend";
+import {createRecord, Flavor, IHPRecord, NewFlavor, updateRecord} from "thin-backend";
 import {
     FormControl,
     InputLabel,
@@ -15,7 +15,7 @@ import * as A from "fp-ts/ReadonlyArray"
 import * as S from "fp-ts/string"
 import * as O from "fp-ts/Option"
 import {useSnackbar} from "notistack";
-import {makeRequest} from "../cities/dialog";
+import {makeRequest} from "../cities/cities-dialog";
 import {useForm, Controller, SubmitHandler} from "react-hook-form";
 import Checkbox from "../../library/input/checkbox";
 import useStoreCities from "../../../stores/cities";
@@ -23,9 +23,6 @@ import useStoreCities from "../../../stores/cities";
 const createFlavor = (newFlavor: NewFlavor) => () => createRecord("flavors", newFlavor)
 const editFlavor = (flavor: Flavor) => () => updateRecord("flavors", flavor.id, flavor)
 
-updateRecords("flavors", [""], {
-    name: ""
-})
 // Promise.
 interface Props {
     onClose: () => void,
@@ -203,7 +200,7 @@ const FlavorsEditDialog: FC<Props> = ({onClose}) => {
                 render={({field}) => <TextField
                     label={"Название"}
                     title={"Название"}
-                    variant={"standard"}
+                    variant={"filled"}
                     {...field}
                     error={!!errors.name}
                     helperText={errors.name?.message}
@@ -221,7 +218,7 @@ const FlavorsEditDialog: FC<Props> = ({onClose}) => {
                 render={({field}) => <TextField
                     label={"Бренд"}
                     title={"Бренд"}
-                    variant={"standard"}
+                    variant={"filled"}
                     {...field}
                     error={!!errors.brand}
                     helperText={errors.brand?.message}
@@ -262,7 +259,7 @@ const FlavorsEditDialog: FC<Props> = ({onClose}) => {
                         fullWidth
                         label={"Артикул"}
                         title={"Артикул"}
-                        variant={"standard"}
+                        variant={"filled"}
                         {...field}
                         error={!!errors.articleNumber}
                         helperText={errors.articleNumber?.message}

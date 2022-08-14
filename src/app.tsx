@@ -15,8 +15,9 @@ const AppLayout = lazy(() => import("./components/library/layouts/app-layout"))
 const CitiesEditor = lazy(() => import("./components/editors/cities"))
 const FlavorsEditor = lazy(() => import("./components/editors/flavors"))
 const NotFound = lazy(() => import("./components/library/not-found"))
-const AddressesEditor = lazy(() => import("./components/editors/addresses"))
+// const AddressesEditor = lazy(() => import("./components/editors/addresses"))
 const StructuresEditor = lazy(() => import("./components/editors/structures"))
+const StoresEditor = lazy(() => import("./components/editors/stores/stores-table"))
 
 const App: FC = () => {
     const setCities = useStoreCities(state => state.setCities)
@@ -42,8 +43,9 @@ const App: FC = () => {
                             {/*</ProtectedComponent>}>*/}
                             <Route path={ROUTES.cities} element={<CitiesEditor/>}/>
                             <Route path={ROUTES.flavors} element={<FlavorsEditor/>}/>
-                            <Route path={ROUTES.addresses} element={<AddressesEditor/>}/>
+                            <Route path={ROUTES.stores} element={<StoresEditor/>}/>
                             <Route path={ROUTES.structures} element={<StructuresEditor/>}/>
+                            {/*<Route path={ROUTES.} element={<StructuresEditor/>}/>*/}
                             <Route path={ROUTES.notFound} element={<NotFound/>}/>
                             <Route path={"*"} element={<NotFound/>}/>
                         </Route>

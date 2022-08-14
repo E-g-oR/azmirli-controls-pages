@@ -10,8 +10,10 @@ import FastActionButton from "../../library/fast-action-button";
 import useStoreFlavorsDialog from "../../../stores/dialog/flavors-store";
 import FlavorsEditDialog, {processStringToArray} from "./dialog";
 import {useSnackbar} from "notistack";
-import {makeRequest} from "../cities/dialog";
+import {makeRequest} from "../cities/cities-dialog";
 import useStoreCities from "../../../stores/cities";
+import {Navigate} from "react-router-dom";
+import {ROUTES} from "../../../utils/routing";
 
 const deleteFlavor = (id: UUID) => deleteRecord("flavors", id)
 
@@ -19,10 +21,6 @@ const FlavorsEditor: FC = () => {
     const {enqueueSnackbar} = useSnackbar()
 
     const flavors = useQuery(query("flavors"))
-
-    // const flavorsFiltered = useQuery(query("flavors").("volume", "50"))
-
-    // console.log(flavorsFiltered)
 
     const onDeleteSuccess = () => {
         enqueueSnackbar("Аромат был успешно удален.", {variant: "success"})
@@ -53,7 +51,6 @@ const FlavorsEditor: FC = () => {
         >
             <Tooltip title={"Редактировать"}>
                 <IconButton onClick={() => {
-                    // console.log(v)
                     setEditFlavor(v)
                 }}>
                     <EditOutlined/>
@@ -102,21 +99,22 @@ const FlavorsEditor: FC = () => {
         render: (v) => <span>{v.articleNumber}</span>
     },], [cities, getCityById])
 
+    const goAway = true
 
+    return goAway ? <Navigate to={ROUTES.notFound}/>
+        : <>
+            <Typography variant={"h3"} sx={{paddingBottom: 2}}>Редактор ароматов</Typography>
+            <Table config={config}>
+                <TableHeader/>
+                <tbody>
+                {flavors?.map(flavor => <TableRow key={flavor.id} row={flavor}/>)}
+                </tbody>
 
-    return <>
-        <Typography variant={"h3"} sx={{paddingBottom: 2}}>Редактор ароматов</Typography>
-        <Table config={config}>
-            <TableHeader/>
-            <tbody>
-            {flavors?.map(flavor => <TableRow key={flavor.id} row={flavor}/>)}
-            </tbody>
+            </Table>
 
-        </Table>
-
-        <FastActionButton onClick={setCreateFlavor}/>
-        <FlavorsEditDialog onClose={onClose}/>
-    </>
+            <FastActionButton onClick={setCreateFlavor}/>
+            <FlavorsEditDialog onClose={onClose}/>
+        </>
 }
 
 export default FlavorsEditor

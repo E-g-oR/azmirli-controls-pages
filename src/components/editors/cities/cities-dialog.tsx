@@ -1,6 +1,6 @@
 import {FC, useCallback, useEffect, useMemo} from "react";
 import useStoreDialogCity from "../../../stores/dialog/cities-store";
-import DialogLayout from "../../dialog";
+import DialogLayout from "../../dialog/dialog";
 import {City, createRecord, IHPRecord, NewCity, updateRecord} from "thin-backend";
 import {Stack, TextField} from "@mui/material";
 import {useSnackbar} from "notistack";
@@ -118,55 +118,63 @@ const CitiesDialog: FC<Props> = ({onClose}) => {
 
         <Stack direction={"column"} flexWrap={"wrap"} spacing={3}>
 
-            <Controller
-                name={"name"}
-                rules={{
-                    required: {
-                        message: "Название не может быть пустым",
-                        value: true,
-                    }
-                }}
-                control={control}
-                render={({field}) => <TextField
-                    label={"Название"}
-                    variant={"standard"}
-                    {...field}
-                    error={!!errors.name}
-                    helperText={errors.name?.message}
-                />}
-            />
-            <Controller
-                name={"subDomain"}
-                rules={{
-                    required: {
-                        message: "Поддомен не может быть пустым",
-                        value: true,
-                    }
-                }}
-                control={control}
-                render={({field}) => <TextField
-                    label={"Поддомен"}
-                    variant={"standard"}
-                    {...field}
-                    error={!!errors.subDomain}
-                    helperText={errors.subDomain?.message}
-                />}
-            />
+            <Stack
+            direction={"row"}
+            spacing={3}
+            >
+                <Controller
+                    name={"name"}
+                    rules={{
+                        required: {
+                            message: "Название не может быть пустым",
+                            value: true,
+                        }
+                    }}
+                    control={control}
+                    render={({field}) => <TextField
+                        label={"Название"}
+                        variant={"filled"}
+                        fullWidth
+                        {...field}
+                        error={!!errors.name}
+                        helperText={errors.name?.message}
+                    />}
+                />
+                <Controller
+                    name={"subDomain"}
+                    rules={{
+                        required: {
+                            message: "Поддомен не может быть пустым",
+                            value: true,
+                        }
+                    }}
+                    control={control}
+                    render={({field}) => <TextField
+                        label={"Поддомен"}
+                        variant={"filled"}
+                        fullWidth
+                        {...field}
+                        error={!!errors.subDomain}
+                        helperText={errors.subDomain?.message}
+                    />}
+                />
+            </Stack>
+
 
             <Controller
                 name={"instagram"}
                 control={control}
-                render={({field}) => <TextField label={"Инстаграм"} variant={"standard"} {...field} />}
+                render={({field}) => <TextField label={"Инстаграм"} variant={"filled"} {...field} />}
             />
             <Controller
                 name={"vkontakte"}
                 control={control}
-                render={({field}) => <TextField label={"ВКонтакте"} variant={"standard"} {...field} />}
+                render={({field}) => <TextField label={"ВКонтакте"} variant={"filled"} {...field} />}
             />
             <Controller
                 name={"facebook"}
                 control={control}
-                render={({field}) => <TextField label={"Фейсбук"} variant={"standard"} {...field} />}
+                render={({field}) => <TextField label={"Фейсбук"} variant={"filled"} {...field} />}
             />
         </Stack>
 

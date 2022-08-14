@@ -3,7 +3,7 @@ import ReactDOM from 'react-dom/client'
 import App from './app'
 // import './index.css'
 import CssBaseline from '@mui/material/CssBaseline';
-import {createTheme, ThemeProvider} from "@mui/material";
+import {createTheme, responsiveFontSizes, ThemeProvider} from "@mui/material";
 import {BrowserRouter} from "react-router-dom";
 import {ThinBackend} from "thin-backend-react";
 import {initThinBackend} from 'thin-backend';
@@ -11,7 +11,7 @@ import {SnackbarProvider} from "notistack";
 
 
 initThinBackend({host: import.meta.env.VITE_APP_BACKEND_URL});
-export const theme = createTheme({
+export let theme = createTheme({
     palette: {
         primary: {
             main: "#C0A365"
@@ -31,18 +31,15 @@ export const theme = createTheme({
         },
     },
     components: {
-        MuiListItemButton: {
-            defaultProps: {},
-            styleOverrides: {}
-        },
-        MuiTouchRipple: {
+        MuiButtonBase: {
             defaultProps: {
-                color: "red"
+                disableRipple: true,
             }
         }
-
     }
 })
+
+theme = responsiveFontSizes(theme)
 
 const root = document.getElementById("root")
 root && ReactDOM.createRoot(root).render(

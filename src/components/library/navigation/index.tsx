@@ -28,7 +28,7 @@ export const menu: ReadonlyArray<MenuItem> = [
     },
     {
         name: "Магазины",
-        link: ROUTES.addresses,
+        link: ROUTES.stores,
         icon: <ShoppingBag/>
     },
     {
