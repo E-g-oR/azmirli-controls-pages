@@ -1,6 +1,5 @@
 import {FC, useMemo} from "react";
 import {
-    IconButton,
     Skeleton,
     Stack,
     Tooltip,
@@ -15,8 +14,7 @@ import CitiesDialog from "./cities-dialog";
 import useStoreDialogCity from "../../../stores/dialog/cities-store";
 import FastActionButton from "../../library/fast-action-button";
 import useStoreCities from "../../../stores/cities";
-// import Button from "@mui/material/Button";
-import Button from "@mui/joy/Button"
+import IconButton from "@mui/joy/IconButton"
 
 const CitiesEditor: FC = () => {
     const cities = useStoreCities(state => state.cities)
@@ -35,12 +33,18 @@ const CitiesEditor: FC = () => {
                 spacing={1}
             >
                 <Tooltip title={"Редактировать"}>
-                    <IconButton onClick={() => setEditCity(v)}>
+                    <IconButton
+                        onClick={() => setEditCity(v)}
+                        variant={"plain"}
+                    >
                         <EditOutlined/>
                     </IconButton>
                 </Tooltip>
                 <Tooltip title={"Удалить"}>
-                    <IconButton onClick={() => console.log("delete", v.name)}>
+                    <IconButton
+                        onClick={() => console.log("delete", v.name)}
+                        variant={"plain"}
+                    >
                         <DeleteOutlined/>
                     </IconButton>
                 </Tooltip>
@@ -74,12 +78,6 @@ const CitiesEditor: FC = () => {
 
     return <>
         <Typography variant={"h3"} sx={{paddingBottom: 2}}>Редактор городов</Typography>
-        <Button
-            variant={"solid"}
-            onClick={() => console.log("click")}
-            color={"primary"}
-        >Hey you</Button>
-        {/*<ButtonJoy>Button from Joy</ButtonJoy>*/}
         {cities ?
             <Table config={config}>
                 <TableHeader/>

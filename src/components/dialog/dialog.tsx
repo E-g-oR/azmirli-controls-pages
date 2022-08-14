@@ -5,10 +5,12 @@ import DialogTitle from "@mui/material/DialogTitle";
 // import {DialogActions, Divider, IconButton} from "@mui/material";
 import DialogActions from "@mui/material/DialogActions";
 // import Button from "@mui/joy/Button";
-import Button from "@mui/material/Button";
+// import Button from "@mui/material/Button";
+import Button from "@mui/joy/Button";
 import Divider from "@mui/material/Divider";
 import {Close} from "@mui/icons-material";
-import IconButton from "@mui/material/IconButton";
+// import IconButton from "@mui/material/IconButton";
+import IconButton from "@mui/joy/IconButton";
 import {Stack} from "@mui/material";
 
 interface Props {
@@ -37,6 +39,7 @@ const DialogLayout: FC<Props> = ({children, onCancel, onSubmit, onClose, isOpen,
                         right: 10,
                         top: 10
                     }}
+                    variant={"plain"}
                 >
                     <Close/>
                 </IconButton> : null}
@@ -47,7 +50,7 @@ const DialogLayout: FC<Props> = ({children, onCancel, onSubmit, onClose, isOpen,
             <DialogContent>
                 <Stack
                     direction={"column"}
-                    spacing={3}
+                    spacing={2}
                 >
                     {children}
                 </Stack>
@@ -55,7 +58,7 @@ const DialogLayout: FC<Props> = ({children, onCancel, onSubmit, onClose, isOpen,
             <Divider/>
             <DialogActions>
                 <Button variant={"outlined"} onClick={onCancel}>отмена</Button>
-                <Button variant={"contained"} type={"submit"}>Подтвердить</Button>
+                <Button variant={"solid"} type={"submit"}>Подтвердить</Button>
             </DialogActions>
         </form>
     </Dialog>

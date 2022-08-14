@@ -2,10 +2,11 @@ import {FC, useCallback, useEffect, useMemo} from "react";
 import useStoreDialogCity from "../../../stores/dialog/cities-store";
 import DialogLayout from "../../dialog/dialog";
 import {City, createRecord, IHPRecord, NewCity, updateRecord} from "thin-backend";
-import {Stack, TextField} from "@mui/material";
+import {Stack} from "@mui/material";
 import {useSnackbar} from "notistack";
 import {SubmitHandler, useForm, Controller} from "react-hook-form";
 import {match} from "ts-pattern";
+import TextField from "@mui/joy/TextField";
 
 // TODO move it to utils file
 export function makeRequest<T>(request: () => Promise<T>, onSuccess: () => void, onError: () => void) {
@@ -133,7 +134,7 @@ const CitiesDialog: FC<Props> = ({onClose}) => {
                     control={control}
                     render={({field}) => <TextField
                         label={"Название"}
-                        variant={"filled"}
+                        variant={"soft"}
                         fullWidth
                         {...field}
                         error={!!errors.name}
@@ -151,7 +152,7 @@ const CitiesDialog: FC<Props> = ({onClose}) => {
                     control={control}
                     render={({field}) => <TextField
                         label={"Поддомен"}
-                        variant={"filled"}
+                        variant={"soft"}
                         fullWidth
                         {...field}
                         error={!!errors.subDomain}
@@ -164,17 +165,17 @@ const CitiesDialog: FC<Props> = ({onClose}) => {
             <Controller
                 name={"instagram"}
                 control={control}
-                render={({field}) => <TextField label={"Инстаграм"} variant={"filled"} {...field} />}
+                render={({field}) => <TextField label={"Инстаграм"} variant={"soft"} {...field} />}
             />
             <Controller
                 name={"vkontakte"}
                 control={control}
-                render={({field}) => <TextField label={"ВКонтакте"} variant={"filled"} {...field} />}
+                render={({field}) => <TextField label={"ВКонтакте"} variant={"soft"} {...field} />}
             />
             <Controller
                 name={"facebook"}
                 control={control}
-                render={({field}) => <TextField label={"Фейсбук"} variant={"filled"} {...field} />}
+                render={({field}) => <TextField label={"Фейсбук"} variant={"soft"} {...field} />}
             />
         </Stack>
 

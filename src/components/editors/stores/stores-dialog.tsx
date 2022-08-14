@@ -2,11 +2,19 @@ import {FC, useCallback, useEffect, useMemo} from "react";
 import {Controller, SubmitHandler, useForm} from "react-hook-form";
 import DialogLayout from "../../dialog/dialog";
 import useStoreStores from "../../../stores/dialog/stores-store";
-import {FormControl, FormHelperText, FormLabel, InputLabel, MenuItem, Select, Stack, TextField} from "@mui/material";
+import {
+    Box,
+    FormLabel,
+    Stack,
+} from "@mui/material";
 import useStoreCities from "../../../stores/cities";
 import {createRecord, IHPRecord, NewStore, Store, updateRecord} from "thin-backend";
 import {useSnackbar} from "notistack";
 import {makeRequest} from "../cities/cities-dialog";
+import TextField from "@mui/joy/TextField";
+import Select from "@mui/joy/Select";
+import Option from "@mui/joy/Option";
+
 
 const createStore = (newStore: NewStore) => () => createRecord("stores", newStore)
 // TODO make common template for those functions
@@ -128,74 +136,59 @@ const StoresDialog: FC = () => {
         onSubmit={handleSubmit(onSubmit)}
         title={formTitle}
     >
+        {/*<Box>*/}
         <FormLabel>Адрес</FormLabel>
         <Controller
-            name={"cityName"}
-            rules={{
-                required: {
-                    message: "Город не может быть пустым",
-                    value: true,
-                }
-            }}
             control={control}
-            render={({field, fieldState}) => <FormControl
-                fullWidth
-                error={!!fieldState.error}
-            >
-                <InputLabel id={"store-city-name"}>Город</InputLabel>
-                <Select
-                    labelId={"store-city-name"}
-                    id={"city-name"}
-                    variant={"outlined"}
-                    title={"Город"}
-                    label={"Город"}
-                    {...field}
-                    MenuProps={{
+            name={"cityName"}
+            render={({field}) => <Select
+                variant={"soft"}
+                {...field}
+                componentsProps={{
+                    listbox: {
                         sx: {
-                            maxHeight: 300
+                            maxHeight: 240,
+                            overflow: 'auto',
+                            '--List-padding': '0px',
                         }
-                    }}
-                >
-                    {cities?.map(city => <MenuItem key={city.id} value={city.name}>
-                        {city.name}
-                    </MenuItem>)}
-                </Select>
-                {fieldState.error && <FormHelperText>{fieldState.error.message}</FormHelperText>}
-            </FormControl>}
+                    }
+                }}
+            >
+                {cities?.map(city => <Option value={city.name} key={city.id}>{city.name}</Option>)}
+            </Select>
+            }
         />
         <Stack
             direction={"row"}
             spacing={3}
+            alignItems={"flex-end"}
         >
             <Controller
-                name={"streetType"}
-                rules={{
-                    required: {
-                        message: "Тип улицы не может быть пустым",
-                        value: true,
-                    }
-                }}
                 control={control}
-                render={({field}) =>
-                    <FormControl sx={{width: 270}}>
-                        <InputLabel id={"store-street-type"}>Тип</InputLabel>
-                        <Select
-                            labelId={"store-street-type"}
-                            id={"street-type"}
-                            variant={"outlined"}
-                            title={"Тип"}
-                            label={"Тип"}
-                            {...field}
-                        >
-                            {streetTypes.map(type => <MenuItem
-                                    key={type}
-                                    value={type}
-                                >
-                                    {type}
-                                </MenuItem>
-                            )}
-                        </Select>
-                    </FormControl>
+                name={"streetType"}
+                render={({field}) => <Box
+                    sx={{
+                        width: 130,
+                        minWidth: 130,
+                        maxWidth: 130,
+                    }}
+                >
+                    <Select
+                        variant={"soft"}
+                        {...field}
+                        componentsProps={{
+                            listbox: {
+                                sx: {
+                                    maxHeight: 240,
+                                    overflow: 'auto',
+                                    '--List-padding': '0px',
+                                }
+                            }
+                        }}
+                    >
+                        {streetTypes?.map(type => <Option value={type} key={type}>{type}</Option>)}
+                    </Select>
+                </Box>
                 }
             />
             <Controller
@@ -209,7 +202,7 @@ const StoresDialog: FC = () => {
                 control={control}
                 render={({field, fieldState}) => <TextField
                     label={"Улица"}
-                    variant={"filled"}
+                    variant={"soft"}
                     fullWidth
                     {...field}
                     error={!!fieldState.error}
@@ -225,13 +218,21 @@ const StoresDialog: FC = () => {
                     }
                 }}
                 control={control}
-                render={({field, fieldState}) => <TextField
-                    label={"Здание"}
-                    variant={"filled"}
-                    {...field}
-                    error={!!fieldState.error}
-                    helperText={fieldState.error?.message}
-                />}
+                render={({field, fieldState}) =>
+                    <Box
+                        sx={{
+                            width: 100,
+                        }}
+                    >
+                        <TextField
+                            label={"Здание"}
+                            variant={"soft"}
+                            {...field}
+                            error={!!fieldState.error}
+                            helperText={fieldState.error?.message}
+                        />
+                    </Box>
+                }
             />
         </Stack>
         <Controller
@@ -239,54 +240,59 @@ const StoresDialog: FC = () => {
             control={control}
             render={({field, fieldState}) => <TextField
                 label={"Коментарий"}
-                variant={"filled"}
+                variant={"soft"}
                 fullWidth
                 {...field}
                 error={!!fieldState.error}
                 helperText={fieldState.error?.message}
             />}
         />
-        <FormLabel>Рабочее время:</FormLabel>
-        <Stack
-            direction={"row"}
-            spacing={3}
-        >
-            <Controller
-                name={"workingTimeStart"}
-                control={control}
-                rules={{
-                    required: {
-                        message: "Время не может быть пустым",
-                        value: true,
-                    }
-                }}
-                render={({field, fieldState}) => <TextField
-                    label={"Начало"}
-                    variant={"filled"}
-                    // fullWidth
-                    {...field}
-                    error={!!fieldState.error}
-                    helperText={fieldState.error?.message}
-                />}
-            />
-            <Controller
-                name={"workingTimeEnd"}
-                control={control}
-                rules={{
-                    required: {
-                        message: "Время не может быть пустым",
-                        value: true,
-                    }
-                }}
-                render={({field, fieldState}) => <TextField
-                    label={"Конец"}
-                    variant={"filled"}
-                    // fullWidth
-                    {...field}
-                    error={!!fieldState.error}
-                    helperText={fieldState.error?.message}
-                />}
-            />
+        {/*</Box>*/}
+        <Stack direction={"column"}>
+            <FormLabel>
+                Рабочее время:
+            </FormLabel>
+            <Stack
+                direction={"row"}
+                spacing={3}
+            >
+                <Controller
+                    name={"workingTimeStart"}
+                    control={control}
+                    rules={{
+                        required: {
+                            message: "Время не может быть пустым",
+                            value: true,
+                        }
+                    }}
+                    render={({field, fieldState}) => <TextField
+                        label={"Начало"}
+                        variant={"soft"}
+                        // fullWidth
+                        {...field}
+                        error={!!fieldState.error}
+                        helperText={fieldState.error?.message}
+                    />}
+                />
+                <Controller
+                    name={"workingTimeEnd"}
+                    control={control}
+                    rules={{
+                        required: {
+                            message: "Время не может быть пустым",
+                            value: true,
+                        }
+                    }}
+                    render={({field, fieldState}) => <TextField
+                        label={"Конец"}
+                        variant={"soft"}
+                        // fullWidth
+                        {...field}
+                        error={!!fieldState.error}
+                        helperText={fieldState.error?.message}
+                    />}
+                />
+            </Stack>
         </Stack>
 
 

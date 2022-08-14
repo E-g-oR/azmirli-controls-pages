@@ -16,17 +16,38 @@ import {deepmerge} from "@mui/utils";
 
 initThinBackend({host: import.meta.env.VITE_APP_BACKEND_URL});
 
+const getBg = (opacity = 1) => `hsla(40, 40%, 55%, ${opacity})`
+const getHoverBg = (opacity = 1) => `hsla(40, 40%, 45%, ${opacity})`
+const getActiveBg = (opacity = 1) => `hsla(40, 40%, 40%, ${opacity})`
+
 const themeJoy = extendTheme({
     cssVarPrefix: 'mui',
     colorSchemes: {
         light: {
             palette: {
                 primary: {
-                    mainChannel: "#C0A365",
-                    solidBg: "hsla(40, 40%, 55%, 1)",
-                    solidHoverBg: "hsla(40, 40%, 45%, 1)",
-                    solidActiveBg: "hsla(40, 40%, 40%, 1)",
-                }
+                    mainChannel: getBg(),
+                    solidBg: getBg(),
+                    solidHoverBg: getHoverBg(),
+                    solidActiveBg: getActiveBg(),
+
+                    plainColor: getActiveBg(),
+                    plainHoverBg: getHoverBg(0.3),
+                    plainActiveBg: getActiveBg(0.5),
+
+                    outlinedColor: getActiveBg(),
+                    outlinedBorder: getActiveBg(0.5),
+                    outlinedHoverBg: getHoverBg(0.3),
+                    outlinedHoverBorder: getHoverBg(0.7),
+                    outlinedActiveBg: getActiveBg(0.5),
+
+                    softColor: getActiveBg(),
+                    softBg: getHoverBg(0.3),
+                    softHoverBg: getHoverBg(0.5),
+                    softActiveBg: getActiveBg(0.65),
+
+
+                },
             }
         },
         dark: {
