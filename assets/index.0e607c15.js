@@ -1,0 +1,1 @@
+import{l as u,I as r}from"./index.e6b59a28.js";import{T as t}from"./Typography.11414a77.js";const e=()=>u(r,{children:u(t,{variant:"h3",children:"\u042D\u0442\u0430 \u0441\u0435\u043A\u0446\u0438\u044F \u043F\u043E\u043A\u0430 \u043D\u0435 \u0440\u0435\u0430\u043B\u0438\u0437\u043E\u0432\u0430\u043D\u0430"})});export{e as default};
