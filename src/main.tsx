@@ -57,6 +57,15 @@ const themeJoy = extendTheme({
                 }
             }
         }
+    },
+    components: {
+        JoyButton: {
+            defaultProps: {
+                sx: {
+                    textTransform: "uppercase",
+                }
+            }
+        }
     }
 })
 

@@ -136,7 +136,6 @@ const StoresDialog: FC = () => {
         onSubmit={handleSubmit(onSubmit)}
         title={formTitle}
     >
-        {/*<Box>*/}
         <FormLabel>Адрес</FormLabel>
         <Controller
             control={control}
@@ -159,18 +158,24 @@ const StoresDialog: FC = () => {
             }
         />
         <Stack
-            direction={"row"}
-            spacing={3}
-            alignItems={"flex-end"}
+            direction={{xs: "column", sm: "row"}}
+            spacing={{xs: 1, sm: 2}}
+            alignItems={{xs: "stretch", sm: "flex-end"}}
         >
             <Controller
                 control={control}
                 name={"streetType"}
                 render={({field}) => <Box
                     sx={{
-                        width: 130,
-                        minWidth: 130,
-                        maxWidth: 130,
+                        width: {
+                            xs: "100%", sm: 130,
+                        },
+                        minWidth: {
+                            xs: "100%", sm: 130,
+                        },
+                        maxWidth: {
+                            xs: "100%", sm: 130,
+                        },
                     }}
                 >
                     <Select
@@ -221,7 +226,9 @@ const StoresDialog: FC = () => {
                 render={({field, fieldState}) =>
                     <Box
                         sx={{
-                            width: 100,
+                            width: {
+                                xs: "100%", sm: 100,
+                            },
                         }}
                     >
                         <TextField
@@ -247,14 +254,19 @@ const StoresDialog: FC = () => {
                 helperText={fieldState.error?.message}
             />}
         />
-        {/*</Box>*/}
-        <Stack direction={"column"}>
-            <FormLabel>
+        <Stack
+            direction={"column"}
+        >
+            <FormLabel
+                sx={{
+                    marginTop: 1
+                }}
+            >
                 Рабочее время:
             </FormLabel>
             <Stack
-                direction={"row"}
-                spacing={3}
+                direction={{xs: "column", sm: "row"}}
+                spacing={{xs: 1, sm: 2}}
             >
                 <Controller
                     name={"workingTimeStart"}

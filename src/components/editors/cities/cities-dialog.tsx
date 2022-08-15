@@ -116,69 +116,63 @@ const CitiesDialog: FC<Props> = ({onClose}) => {
         }}
         onSubmit={handleSubmit(onSubmit)}
     >
+        <Stack
+            direction={{xs: "column", sm: "row"}}
+            spacing={{xs: 1, sm: 2}}
 
-        <Stack direction={"column"} flexWrap={"wrap"} spacing={3}>
-
-            <Stack
-            direction={"row"}
-            spacing={3}
-            >
-                <Controller
-                    name={"name"}
-                    rules={{
-                        required: {
-                            message: "Название не может быть пустым",
-                            value: true,
-                        }
-                    }}
-                    control={control}
-                    render={({field}) => <TextField
-                        label={"Название"}
-                        variant={"soft"}
-                        fullWidth
-                        {...field}
-                        error={!!errors.name}
-                        helperText={errors.name?.message}
-                    />}
-                />
-                <Controller
-                    name={"subDomain"}
-                    rules={{
-                        required: {
-                            message: "Поддомен не может быть пустым",
-                            value: true,
-                        }
-                    }}
-                    control={control}
-                    render={({field}) => <TextField
-                        label={"Поддомен"}
-                        variant={"soft"}
-                        fullWidth
-                        {...field}
-                        error={!!errors.subDomain}
-                        helperText={errors.subDomain?.message}
-                    />}
-                />
-            </Stack>
-
-
+        >
             <Controller
-                name={"instagram"}
+                name={"name"}
+                rules={{
+                    required: {
+                        message: "Название не может быть пустым",
+                        value: true,
+                    }
+                }}
                 control={control}
-                render={({field}) => <TextField label={"Инстаграм"} variant={"soft"} {...field} />}
+                render={({field}) => <TextField
+                    label={"Название"}
+                    variant={"soft"}
+                    fullWidth
+                    {...field}
+                    error={!!errors.name}
+                    helperText={errors.name?.message}
+                />}
             />
             <Controller
-                name={"vkontakte"}
+                name={"subDomain"}
+                rules={{
+                    required: {
+                        message: "Поддомен не может быть пустым",
+                        value: true,
+                    }
+                }}
                 control={control}
-                render={({field}) => <TextField label={"ВКонтакте"} variant={"soft"} {...field} />}
-            />
-            <Controller
-                name={"facebook"}
-                control={control}
-                render={({field}) => <TextField label={"Фейсбук"} variant={"soft"} {...field} />}
+                render={({field}) => <TextField
+                    label={"Поддомен"}
+                    variant={"soft"}
+                    fullWidth
+                    {...field}
+                    error={!!errors.subDomain}
+                    helperText={errors.subDomain?.message}
+                />}
             />
         </Stack>
-
+        <Controller
+            name={"instagram"}
+            control={control}
+            render={({field}) => <TextField label={"Инстаграм"} variant={"soft"} {...field} />}
+        />
+        <Controller
+            name={"vkontakte"}
+            control={control}
+            render={({field}) => <TextField label={"ВКонтакте"} variant={"soft"} {...field} />}
+        />
+        <Controller
+            name={"facebook"}
+            control={control}
+            render={({field}) => <TextField label={"Фейсбук"} variant={"soft"} {...field} />}
+        />
     </DialogLayout>
 }
 

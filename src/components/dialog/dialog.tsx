@@ -2,14 +2,10 @@ import {FC, ReactNode} from "react";
 import Dialog from "@mui/material/Dialog"
 import DialogContent from "@mui/material/DialogContent";
 import DialogTitle from "@mui/material/DialogTitle";
-// import {DialogActions, Divider, IconButton} from "@mui/material";
 import DialogActions from "@mui/material/DialogActions";
-// import Button from "@mui/joy/Button";
-// import Button from "@mui/material/Button";
 import Button from "@mui/joy/Button";
 import Divider from "@mui/material/Divider";
 import {Close} from "@mui/icons-material";
-// import IconButton from "@mui/material/IconButton";
 import IconButton from "@mui/joy/IconButton";
 import {Stack} from "@mui/material";
 
@@ -28,10 +24,18 @@ const DialogLayout: FC<Props> = ({children, onCancel, onSubmit, onClose, isOpen,
         fullWidth
         maxWidth={"sm"}
         onKeyUp={(v) => v.key === "Escape" && onCancel()}
+        scroll={"paper"}
+        aria-labelledby="scroll-dialog-title"
+        aria-describedby="scroll-dialog-description"
     >
         {
             title && <>
-                <DialogTitle textTransform={"capitalize"}>{title}</DialogTitle>
+                <DialogTitle
+                    id="scroll-dialog-title"
+                    textTransform={"capitalize"}
+                >
+                    {title}
+                </DialogTitle>
                 {onClose ? <IconButton
                     onClick={onClose}
                     sx={{
@@ -46,21 +50,34 @@ const DialogLayout: FC<Props> = ({children, onCancel, onSubmit, onClose, isOpen,
                 <Divider/>
             </>
         }
-        <form onSubmit={onSubmit}>
-            <DialogContent>
-                <Stack
-                    direction={"column"}
-                    spacing={2}
-                >
-                    {children}
-                </Stack>
-            </DialogContent>
-            <Divider/>
-            <DialogActions>
-                <Button variant={"outlined"} onClick={onCancel}>отмена</Button>
-                <Button variant={"solid"} type={"submit"}>Подтвердить</Button>
-            </DialogActions>
-        </form>
+        <DialogContent
+            dividers={true}
+            tabIndex={-1}
+        >
+            <Stack
+                direction={"column"}
+                spacing={{xs: 1, sm: 2}}
+                overflow={"auto"}
+            >
+                {children}
+            </Stack>
+        </DialogContent>
+        <Divider/>
+        <DialogActions>
+            <Button
+                variant={"outlined"}
+                onClick={onCancel}
+            >
+                отмена
+            </Button>
+            <Button
+                variant={"solid"}
+                type={"submit"}
+                onClick={onSubmit}
+            >
+                Подтвердить
+            </Button>
+        </DialogActions>
     </Dialog>
 }
 
