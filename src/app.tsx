@@ -3,7 +3,7 @@ import 'thin-backend-react/auth.css'
 import useStoreCities from "./stores/cities";
 import {useQuery} from "thin-backend-react";
 import {query, } from "thin-backend";
-import {Route, Routes} from "react-router-dom";
+import {Navigate, Route, Routes} from "react-router-dom";
 import {ROUTES} from "./utils/routing";
 // import AppLayout from "./components/library/layouts/app-layout";
 import LoadingScreen from "./components/loading-screen/loading-screen";
@@ -41,6 +41,7 @@ const App: FC = () => {
                             {/*<Route path={ROUTES.root} element={<ProtectedComponent>*/}
                             {/*    <AppLayout/>*/}
                             {/*</ProtectedComponent>}>*/}
+                            <Route index element={<Navigate to={ROUTES.cities} />}/>
                             <Route path={ROUTES.cities} element={<CitiesEditor/>}/>
                             <Route path={ROUTES.flavors} element={<FlavorsEditor/>}/>
                             <Route path={ROUTES.stores} element={<StoresEditor/>}/>

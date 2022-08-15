@@ -8,7 +8,6 @@ import {
 import Table, {Config} from "../../library/table";
 import {City} from "thin-backend";
 import {DeleteOutlined, EditOutlined} from "@mui/icons-material";
-import TableHeader from "../../library/table/table-head";
 import TableRow from "../../library/table/table-row";
 import CitiesDialog from "./cities-dialog";
 import useStoreDialogCity from "../../../stores/dialog/cities-store";
@@ -80,11 +79,7 @@ const CitiesEditor: FC = () => {
         <Typography variant={"h3"} sx={{paddingBottom: 2}}>Редактор городов</Typography>
         {cities ?
             <Table config={config}>
-                <TableHeader/>
-                <tbody>
                 {cities?.map(city => <TableRow key={city.id} row={city}/>)}
-                </tbody>
-
             </Table>
             : <Skeleton variant={"rectangular"} width={"100%"} height={"100%"}/>
         }

@@ -1,18 +1,21 @@
 import {FC, useCallback, useMemo} from "react";
-import {Box, IconButton, Stack, Tooltip, Typography} from "@mui/material";
+// import {Box, Stack, Tooltip, Typography} from "@mui/material";
+import Box from "@mui/joy/Box"
+import Stack from "@mui/joy/Stack";
+import Tooltip from "@mui/material/Tooltip";
+import Typography from "@mui/joy/Typography";
 import Table, {Config} from "../../library/table";
 import {deleteRecord, query, Store, UUID} from "thin-backend";
 import useStoreCities from "../../../stores/cities";
-import TableHeader from "../../library/table/table-head";
 import {useQuery} from "thin-backend-react";
 import TableRow from "../../library/table/table-row";
 import {DeleteOutlined, EditOutlined} from "@mui/icons-material";
 import FastActionButton from "../../library/fast-action-button";
 import useStoreStores from "../../../stores/dialog/stores-store";
 import StoresDialog from "./stores-dialog";
-// import {makeRequest} from "../cities/dialog";
 import {useSnackbar} from "notistack";
 import {makeRequest} from "../cities/cities-dialog";
+import IconButton from "@mui/joy/IconButton";
 
 const deleteStore = (id: UUID) => () => deleteRecord("stores", id)
 
@@ -48,12 +51,16 @@ const StoresTable: FC = () => {
                 spacing={1}
             >
                 <Tooltip title={"Редактировать"}>
-                    <IconButton onClick={() => setEditStore(v)}>
+                    <IconButton
+                        variant={"plain"}
+                        onClick={() => setEditStore(v)}
+                    >
                         <EditOutlined/>
                     </IconButton>
                 </Tooltip>
                 <Tooltip title={"Удалить"}>
                     <IconButton
+                        variant={"plain"}
                         onClick={() => makeRequest(deleteStore(v.id), onDeleteSuccess, onDeleteError)}
                     >
                         <DeleteOutlined/>
@@ -85,12 +92,13 @@ const StoresTable: FC = () => {
     ], [getCityById, setEditStore])
 
     return <Box>
-        <Typography variant={"h3"} component={"h1"}>Редактор магазинов</Typography>
+        <Typography
+            level={"h3"}
+            component={"h1"}
+            marginBottom={2}
+        >Редактор магазинов</Typography>
         <Table config={config}>
-            <TableHeader/>
-            <tbody>
             {stores?.map(store => <TableRow key={store.id} row={store}/>)}
-            </tbody>
         </Table>
         <StoresDialog/>
         <FastActionButton onClick={() => {

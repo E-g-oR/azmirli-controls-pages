@@ -3,7 +3,6 @@ import {IconButton, Stack, Tooltip, Typography} from "@mui/material";
 import {useQuery} from "thin-backend-react";
 import {deleteRecord, Flavor, query, UUID} from "thin-backend";
 import Table, {Config} from "../../library/table";
-import TableHeader from "../../library/table/table-head";
 import TableRow from "../../library/table/table-row";
 import {DeleteOutlined, EditOutlined} from "@mui/icons-material";
 import FastActionButton from "../../library/fast-action-button";
@@ -105,11 +104,7 @@ const FlavorsEditor: FC = () => {
         : <>
             <Typography variant={"h3"} sx={{paddingBottom: 2}}>Редактор ароматов</Typography>
             <Table config={config}>
-                <TableHeader/>
-                <tbody>
                 {flavors?.map(flavor => <TableRow key={flavor.id} row={flavor}/>)}
-                </tbody>
-
             </Table>
 
             <FastActionButton onClick={setCreateFlavor}/>

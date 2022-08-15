@@ -3,6 +3,7 @@ import * as styles from "./table.css"
 import {createContext, ReactNode, useMemo} from "react";
 import {CSSVarFunction} from "@vanilla-extract/private"
 import {Paper} from "@mui/material";
+import TableHeader from "./table-head";
 
 export type PixelSize = `${number}px`
 type ColumnSize = PixelSize | `${number}fr` | CSSVarFunction | "max-content"
@@ -27,7 +28,7 @@ export const tableContext = createContext<TableContext>({
 interface Props<T> {
     config: ReadonlyArray<Config<T>>,
     gap?: number,
-    children: ReactNode[],
+    children: ReactNode,
 }
 
 function Table<T>(props: Props<T>): JSX.Element {
@@ -44,7 +45,10 @@ function Table<T>(props: Props<T>): JSX.Element {
             }}
         >
             <table className={styles.table}>
+                <TableHeader/>
+                <tbody>
                 {props.children}
+                </tbody>
             </table>
         </Paper>
 
