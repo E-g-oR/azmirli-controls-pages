@@ -1,4 +1,4 @@
-import {FC, ReactNode, useMemo} from "react";
+import {FC, ReactNode, useEffect, useMemo} from "react";
 import {Stack, Tooltip, Typography} from "@mui/material";
 import {useQuery} from "thin-backend-react";
 import {Flavor, query, UUID} from "thin-backend";
@@ -20,11 +20,12 @@ import * as A from "fp-ts/es6/ReadonlyArray"
 import * as RNEA from "fp-ts/es6/ReadonlyNonEmptyArray"
 import * as RR from "fp-ts/es6/ReadonlyRecord"
 import * as O from "fp-ts/es6/Option"
+import useStoreStoresStorage from "../../../storage/stores-storage";
 
 // const deleteFlavor = (id: UUID) => deleteRecord("flavors", id)
 
 
-type IDsList = ReadonlyArray<UUID>
+export type IDsList = ReadonlyArray<UUID>
 
 const getCitiesIDs = (flavors: RNEA.ReadonlyNonEmptyArray<Flavor>): IDsList => pipe(
     flavors,
@@ -38,7 +39,7 @@ const getStoresIDs = (flavors: RNEA.ReadonlyNonEmptyArray<Flavor>): IDsList => p
     A.compact,
 )
 
-interface GroupedFlavor {
+export interface GroupedFlavor {
     name: string,
     brand: string,
     category: string,
@@ -78,6 +79,14 @@ const FlavorsEditor: FC = () => {
         flavors ?? [],
         groupFlavors
     ), [flavors])
+
+
+    const setStores = useStoreStoresStorage(state => state.setStores)
+    const stores = useQuery(query("stores"))
+
+    useEffect(() => {
+        setStores(stores)
+    }, [stores])
 
     // const onDeleteSuccess = () => {
     //     enqueueSnackbar("Аромат был успешно удален.", {variant: "success"})

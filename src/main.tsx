@@ -65,7 +65,7 @@ const themeJoy = extendTheme({
                     textTransform: "uppercase",
                 }
             }
-        }
+        },
     }
 })
 

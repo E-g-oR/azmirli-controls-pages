@@ -4,7 +4,7 @@ import DialogLayout from "../../dialog/dialog";
 import useStoreStores from "../../../storage/dialog/stores-store";
 import {
     Box,
-    FormLabel,
+    // FormLabel,
     Stack,
 } from "@mui/material";
 import useStoreCities from "../../../storage/cities";
@@ -14,6 +14,7 @@ import {makeRequest} from "../cities/cities-dialog";
 import TextField from "@mui/joy/TextField";
 import Select from "@mui/joy/Select";
 import Option from "@mui/joy/Option";
+import FormLabel from "@mui/joy/FormLabel";
 
 
 const createStore = (newStore: NewStore) => () => createRecord("stores", newStore)
@@ -140,21 +141,24 @@ const StoresDialog: FC = () => {
         <Controller
             control={control}
             name={"cityName"}
-            render={({field}) => <Select
-                variant={"soft"}
-                {...field}
-                componentsProps={{
-                    listbox: {
-                        sx: {
-                            maxHeight: 240,
-                            overflow: 'auto',
-                            '--List-padding': '0px',
+            render={({field}) => <Box>
+                <FormLabel>Город</FormLabel>
+                <Select
+                    variant={"soft"}
+                    {...field}
+                    componentsProps={{
+                        listbox: {
+                            sx: {
+                                maxHeight: 240,
+                                overflow: 'auto',
+                                '--List-padding': '0px',
+                            }
                         }
-                    }
-                }}
-            >
-                {cities?.map(city => <Option value={city.name} key={city.id}>{city.name}</Option>)}
-            </Select>
+                    }}
+                >
+                    {cities?.map(city => <Option value={city.name} key={city.id}>{city.name}</Option>)}
+                </Select>
+            </Box>
             }
         />
         <Stack
@@ -167,17 +171,12 @@ const StoresDialog: FC = () => {
                 name={"streetType"}
                 render={({field}) => <Box
                     sx={{
-                        width: {
-                            xs: "100%", sm: 130,
-                        },
-                        minWidth: {
-                            xs: "100%", sm: 130,
-                        },
-                        maxWidth: {
-                            xs: "100%", sm: 130,
-                        },
+                        width: {xs: "100%", sm: 130,},
+                        minWidth: {xs: "100%", sm: 130,},
+                        maxWidth: {xs: "100%", sm: 130,},
                     }}
                 >
+                    <FormLabel>Тип улицы</FormLabel>
                     <Select
                         variant={"soft"}
                         {...field}

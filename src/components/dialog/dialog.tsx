@@ -16,17 +16,28 @@ interface Props {
     onClose?: () => void,
     children: ReactNode,
     title?: string,
+    actions?: ReactNode,
 }
 
-const DialogLayout: FC<Props> = ({children, onCancel, onSubmit, onClose, isOpen, title}) => {
+const DialogLayout: FC<Props> = (
+    {
+        children,
+        onCancel,
+        onSubmit,
+        onClose,
+        isOpen,
+        title,
+        actions,
+    }
+) => {
     return <Dialog
         open={isOpen}
         fullWidth
         maxWidth={"sm"}
         onKeyUp={(v) => v.key === "Escape" && onCancel()}
         scroll={"paper"}
-        aria-labelledby="scroll-dialog-title"
-        aria-describedby="scroll-dialog-description"
+        aria-labelledby={"scroll-dialog-title"}
+        aria-describedby={"scroll-dialog-description"}
     >
         {
             title && <>
@@ -64,19 +75,22 @@ const DialogLayout: FC<Props> = ({children, onCancel, onSubmit, onClose, isOpen,
         </DialogContent>
         <Divider/>
         <DialogActions>
-            <Button
-                variant={"outlined"}
-                onClick={onCancel}
-            >
-                отмена
-            </Button>
-            <Button
-                variant={"solid"}
-                type={"submit"}
-                onClick={onSubmit}
-            >
-                Подтвердить
-            </Button>
+            {actions ?? <>
+                <Button
+                    variant={"outlined"}
+                    onClick={onCancel}
+                >
+                    отмена
+                </Button>
+                <Button
+                    variant={"solid"}
+                    type={"submit"}
+                    onClick={onSubmit}
+                >
+                    Подтвердить
+                </Button>
+            </>}
+
         </DialogActions>
     </Dialog>
 }
