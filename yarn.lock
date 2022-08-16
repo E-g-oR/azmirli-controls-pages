@@ -831,13 +831,13 @@
   resolved "https://registry.yarnpkg.com/@types/scheduler/-/scheduler-0.16.2.tgz#1a62f89525723dde24ba1b01b092bf5df8ad4d39"
   integrity sha512-hppQEBDmlwhFAXKJX2KnWLYu5yMfi91yazPb2l+lbJiwW+wdo1gNeRA+3RgNSO39WYX2euey41KEwnqesU2Jew==
 
-"@types/thin-backend@https://thin.dev/types/54543e99-7ee2-4bcc-b2a5-a5b7251f5a93/uofiFVyHApvfkVeiEfBcMeLtsbpPJHlw":
+"@types/thin-backend@https://thin.dev/types/86a36c36-d726-4853-9e40-c030a28b3e65/hpaGTnRYPoZSByOOXanGIBuIarrwchnb":
   version "1.0.0"
-  resolved "https://thin.dev/types/54543e99-7ee2-4bcc-b2a5-a5b7251f5a93/uofiFVyHApvfkVeiEfBcMeLtsbpPJHlw#37725dd85bd45f28608105027ada6b803b95071c"
+  resolved "https://thin.dev/types/86a36c36-d726-4853-9e40-c030a28b3e65/hpaGTnRYPoZSByOOXanGIBuIarrwchnb#7181c3e25c607de5a51dbd3449bb7178ce768bf5"
 
-"@types/thin-backend@https://thin.dev/types/83350840-7225-483c-be01-f21ef3eaef28/vijXMZYFAaFiQEoAuEcgdojWpiFjIsOJ":
+"@types/thin-backend@https://thin.dev/types/8b79c8e7-b1f2-4548-b6ab-3ec8780c3534/IecQbATEMELJtApYNDMLCtyCwvmNCmPM":
   version "1.0.0"
-  resolved "https://thin.dev/types/83350840-7225-483c-be01-f21ef3eaef28/vijXMZYFAaFiQEoAuEcgdojWpiFjIsOJ#d3de41bb9f4b9c9876b364c76cef0e52ea5924e4"
+  resolved "https://thin.dev/types/8b79c8e7-b1f2-4548-b6ab-3ec8780c3534/IecQbATEMELJtApYNDMLCtyCwvmNCmPM#536922b6cb2bc27a103015632b3f76ce97679514"
 
 "@types/uuid@8.3.4":
   version "8.3.4"

@@ -1,6 +1,6 @@
 import {FC, Suspense} from "react";
 import AppBar from "../app-bar";
-import {bottomNavigationId, sideMenuId} from "../../../stores/menu";
+import {bottomNavigationId, sideMenuId} from "../../../storage/menu";
 import {Box, Toolbar} from "@mui/material";
 import Navigation from "../navigation";
 import {Outlet} from "react-router-dom";

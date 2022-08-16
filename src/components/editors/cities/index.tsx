@@ -10,9 +10,9 @@ import {City} from "thin-backend";
 import {DeleteOutlined, EditOutlined} from "@mui/icons-material";
 import TableRow from "../../library/table/table-row";
 import CitiesDialog from "./cities-dialog";
-import useStoreDialogCity from "../../../stores/dialog/cities-store";
+import useStoreDialogCity from "../../../storage/dialog/cities-store";
 import FastActionButton from "../../library/fast-action-button";
-import useStoreCities from "../../../stores/cities";
+import useStoreCities from "../../../storage/cities";
 import IconButton from "@mui/joy/IconButton"
 
 const CitiesEditor: FC = () => {

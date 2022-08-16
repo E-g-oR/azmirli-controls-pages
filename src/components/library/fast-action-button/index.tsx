@@ -1,7 +1,7 @@
 import {FC} from "react";
 import {Fab, useTheme} from "@mui/material";
 import {AddOutlined} from "@mui/icons-material";
-import useStoreMenu from "../../../stores/menu";
+import useStoreMenu from "../../../storage/menu";
 
 
 interface Props {

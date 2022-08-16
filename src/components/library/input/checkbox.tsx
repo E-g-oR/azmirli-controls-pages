@@ -17,7 +17,7 @@ function Checkbox<C>({options, name, control, values}: Props<C>) {
         name,
     })
     const [value, setValue] = useState<Array<string>>(values as Array<string>)
-    console.log(value)
+
     return <FormGroup>
         <FormLabel component={"legend"}>Доступные объемы</FormLabel>
         <Stack direction={"row"}>

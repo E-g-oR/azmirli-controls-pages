@@ -1,13 +1,13 @@
 import {FC, useCallback, useEffect, useMemo} from "react";
 import {Controller, SubmitHandler, useForm} from "react-hook-form";
 import DialogLayout from "../../dialog/dialog";
-import useStoreStores from "../../../stores/dialog/stores-store";
+import useStoreStores from "../../../storage/dialog/stores-store";
 import {
     Box,
     FormLabel,
     Stack,
 } from "@mui/material";
-import useStoreCities from "../../../stores/cities";
+import useStoreCities from "../../../storage/cities";
 import {createRecord, IHPRecord, NewStore, Store, updateRecord} from "thin-backend";
 import {useSnackbar} from "notistack";
 import {makeRequest} from "../cities/cities-dialog";

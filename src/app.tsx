@@ -1,6 +1,6 @@
 import {FC, useEffect, Suspense, lazy} from 'react'
 import 'thin-backend-react/auth.css'
-import useStoreCities from "./stores/cities";
+import useStoreCities from "./storage/cities";
 import {useQuery} from "thin-backend-react";
 import {query, } from "thin-backend";
 import {Navigate, Route, Routes} from "react-router-dom";

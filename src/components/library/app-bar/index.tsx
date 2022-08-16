@@ -1,7 +1,7 @@
 import {FC} from "react";
 import {AppBar as TopBar, Box, IconButton, Toolbar, Typography} from "@mui/material";
 import {Menu} from "@mui/icons-material";
-import useStoreMenu from "../../../stores/menu";
+import useStoreMenu from "../../../storage/menu";
 
 const AppBar: FC = () => {
     const isOpen = useStoreMenu(state => state.isOpen)

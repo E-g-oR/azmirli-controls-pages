@@ -1,6 +1,6 @@
 import {FC, useCallback, useEffect} from "react";
 import DialogLayout from "../../dialog/dialog";
-import useStoreFlavorsDialog from "../../../stores/dialog/flavors-store";
+import useStoreFlavorsDialog from "../../../storage/dialog/flavors-store";
 import {createRecord, Flavor, IHPRecord, NewFlavor, updateRecord} from "thin-backend";
 import {
     FormControl,
@@ -18,7 +18,25 @@ import {useSnackbar} from "notistack";
 import {makeRequest} from "../cities/cities-dialog";
 import {useForm, Controller, SubmitHandler} from "react-hook-form";
 import Checkbox from "../../library/input/checkbox";
-import useStoreCities from "../../../stores/cities";
+import useStoreCities from "../../../storage/cities";
+
+import Stepper from "@mui/material/Stepper";
+import Step from "@mui/material/Step"
+import StepLabel from "@mui/material/StepLabel";
+
+
+// const createSteps = {
+//     step1: {
+//         title: "Общие данные",
+//     },
+//     step2: {
+//         title: "Доступные магазины",
+//     },
+//     step3: {
+//         title: "Доступные объеы"
+//     }
+// }
+
 
 const createFlavor = (newFlavor: NewFlavor) => () => createRecord("flavors", newFlavor)
 const editFlavor = (flavor: Flavor) => () => updateRecord("flavors", flavor.id, flavor)
@@ -36,6 +54,9 @@ const sexTranslate: Record<Sex, SexRussian> = {
     men: "мужской",
     unisex: "унисекс",
 }
+
+// type ArticleNumber = `${number}${string}`
+
 
 type Category = "lux" | "selective" | "exclusive"
 const categoryValues: ReadonlyArray<Category> = ["lux", "exclusive", "selective"] as const
@@ -186,143 +207,156 @@ const FlavorsEditDialog: FC<Props> = ({onClose}) => {
         onSubmit={handleSubmit(onSubmit)}
         title={title}
     >
-        <Stack direction={'column'} spacing={2}>
+        {/*<Stack direction={'column'} spacing={2}>*/}
 
+
+        <Stepper activeStep={2}>
+            <Step>
+                <StepLabel>first test step</StepLabel>
+            </Step>
+            <Step>
+                <StepLabel>second test step</StepLabel>
+            </Step>
+            <Step>
+                <StepLabel>third test step</StepLabel>
+            </Step>
+        </Stepper>
+
+        <Controller
+            rules={{
+                required: {
+                    message: "Название не может быть пустым",
+                    value: true,
+                }
+            }}
+            control={control}
+            name={"name"}
+            render={({field}) => <TextField
+                label={"Название"}
+                title={"Название"}
+                variant={"filled"}
+                {...field}
+                error={!!errors.name}
+                helperText={errors.name?.message}
+            />}
+        />
+        <Controller
+            rules={{
+                required: {
+                    message: "Бренд не может быть пустым",
+                    value: true,
+                }
+            }}
+            control={control}
+            name={"brand"}
+            render={({field}) => <TextField
+                label={"Бренд"}
+                title={"Бренд"}
+                variant={"filled"}
+                {...field}
+                error={!!errors.brand}
+                helperText={errors.brand?.message}
+            />}
+        />
+
+
+        <Stack direction={"row"} spacing={2}>
             <Controller
-                rules={{
-                    required: {
-                        message: "Название не может быть пустым",
-                        value: true,
-                    }
-                }}
                 control={control}
-                name={"name"}
-                render={({field}) => <TextField
-                    label={"Название"}
-                    title={"Название"}
-                    variant={"filled"}
-                    {...field}
-                    error={!!errors.name}
-                    helperText={errors.name?.message}
-                />}
-            />
-            <Controller
-                rules={{
-                    required: {
-                        message: "Бренд не может быть пустым",
-                        value: true,
-                    }
-                }}
-                control={control}
-                name={"brand"}
-                render={({field}) => <TextField
-                    label={"Бренд"}
-                    title={"Бренд"}
-                    variant={"filled"}
-                    {...field}
-                    error={!!errors.brand}
-                    helperText={errors.brand?.message}
-                />}
-            />
-
-
-            <Stack direction={"row"} spacing={2}>
-                <Controller
-                    control={control}
-                    name={"sex"}
-                    render={({field}) => <FormControl fullWidth>
-                        <InputLabel id="flavor-sex-label">Пол</InputLabel>
-                        <Select
-                            labelId={"flavor-sex-label"}
-                            id={"flavor-sex"}
-                            variant={"outlined"}
-                            title={"Пол"}
-                            label={"Пол"}
-                            {...field}
-                        >
-                            <MenuItem value={sexValues[0]}>{sexTranslate?.[sexValues[0]]}</MenuItem>
-                            <MenuItem value={sexValues[1]}>{sexTranslate?.[sexValues[1]]}</MenuItem>
-                            <MenuItem value={sexValues[2]}>{sexTranslate?.[sexValues[2]]}</MenuItem>
-                        </Select>
-                    </FormControl>}
-                />
-                <Controller
-                    rules={{
-                        required: {
-                            message: "Артикул не может быть пустым",
-                            value: true,
-                        }
-                    }}
-                    control={control}
-                    name={"articleNumber"}
-                    render={({field}) => <TextField
-                        fullWidth
-                        label={"Артикул"}
-                        title={"Артикул"}
-                        variant={"filled"}
+                name={"sex"}
+                render={({field}) => <FormControl fullWidth>
+                    <InputLabel id="flavor-sex-label">Пол</InputLabel>
+                    <Select
+                        labelId={"flavor-sex-label"}
+                        id={"flavor-sex"}
+                        variant={"outlined"}
+                        title={"Пол"}
+                        label={"Пол"}
                         {...field}
-                        error={!!errors.articleNumber}
-                        helperText={errors.articleNumber?.message}
-                    />}
-                />
-            </Stack>
-
-            <Stack direction={"row"} spacing={2}>
-                <Controller
-                    control={control}
-                    name={"category"}
-                    render={({field}) => <FormControl fullWidth>
-                        <InputLabel id="flavor-category-label">Категория</InputLabel>
-                        <Select
-                            labelId={"flavor-category-label"}
-                            id={"flavor-category"}
-                            variant={"outlined"}
-                            title={"Категория"}
-                            label={"Категория"}
-                            {...field}
-                        >
-                            <MenuItem value={categoryValues[0]}>{categoryValues[0]}</MenuItem>
-                            <MenuItem value={categoryValues[1]}>{categoryValues[1]}</MenuItem>
-                            <MenuItem value={categoryValues[2]}>{categoryValues[2]}</MenuItem>
-                        </Select>
-                    </FormControl>}
-                />
-                <Controller
-                    rules={{
-                        required: {
-                            message: "Город не может быть пустым",
-                            value: true,
-                        }
-                    }}
-                    control={control}
-                    render={({field}) => <FormControl fullWidth>
-                        <InputLabel id="flavor-city-label">Город</InputLabel>
-                        <Select
-                            labelId={"flavor-city-label"}
-                            id={"flavor-city"}
-                            variant={"outlined"}
-                            title={"Город"}
-                            label={"Город"}
-                            {...field}
-                            error={!!errors.cityName}
-                        >
-                            {cities?.map(city => <MenuItem key={city.id} value={city.name}>{city.name}</MenuItem>)}
-                        </Select>
-                    </FormControl>}
-                    name={"cityName"}
-                />
-
-            </Stack>
-            <Checkbox<Inputs>
-                options={defaultVolumes}
+                    >
+                        <MenuItem value={sexValues[0]}>{sexTranslate?.[sexValues[0]]}</MenuItem>
+                        <MenuItem value={sexValues[1]}>{sexTranslate?.[sexValues[1]]}</MenuItem>
+                        <MenuItem value={sexValues[2]}>{sexTranslate?.[sexValues[2]]}</MenuItem>
+                    </Select>
+                </FormControl>}
+            />
+            <Controller
+                rules={{
+                    required: {
+                        message: "Артикул не может быть пустым",
+                        value: true,
+                    }
+                }}
                 control={control}
-                name={"volumes"}
-                values={Array.isArray(currentFlavor?.volume) ?
-                    currentFlavor?.volume as ReadonlyArray<string>
-                    : processStringToArray(currentFlavor?.volume ?? "")
-                    ?? []}
+                name={"articleNumber"}
+                render={({field}) => <TextField
+                    fullWidth
+                    label={"Артикул"}
+                    title={"Артикул"}
+                    variant={"filled"}
+                    {...field}
+                    error={!!errors.articleNumber}
+                    helperText={errors.articleNumber?.message}
+                />}
             />
         </Stack>
+
+        <Stack direction={"row"} spacing={2}>
+            <Controller
+                control={control}
+                name={"category"}
+                render={({field}) => <FormControl fullWidth>
+                    <InputLabel id="flavor-category-label">Категория</InputLabel>
+                    <Select
+                        labelId={"flavor-category-label"}
+                        id={"flavor-category"}
+                        variant={"outlined"}
+                        title={"Категория"}
+                        label={"Категория"}
+                        {...field}
+                    >
+                        <MenuItem value={categoryValues[0]}>{categoryValues[0]}</MenuItem>
+                        <MenuItem value={categoryValues[1]}>{categoryValues[1]}</MenuItem>
+                        <MenuItem value={categoryValues[2]}>{categoryValues[2]}</MenuItem>
+                    </Select>
+                </FormControl>}
+            />
+            <Controller
+                rules={{
+                    required: {
+                        message: "Город не может быть пустым",
+                        value: true,
+                    }
+                }}
+                control={control}
+                render={({field}) => <FormControl fullWidth>
+                    <InputLabel id="flavor-city-label">Город</InputLabel>
+                    <Select
+                        labelId={"flavor-city-label"}
+                        id={"flavor-city"}
+                        variant={"outlined"}
+                        title={"Город"}
+                        label={"Город"}
+                        {...field}
+                        error={!!errors.cityName}
+                    >
+                        {cities?.map(city => <MenuItem key={city.id} value={city.name}>{city.name}</MenuItem>)}
+                    </Select>
+                </FormControl>}
+                name={"cityName"}
+            />
+
+        </Stack>
+        <Checkbox<Inputs>
+            options={defaultVolumes}
+            control={control}
+            name={"volumes"}
+            values={Array.isArray(currentFlavor?.volume) ?
+                currentFlavor?.volume as ReadonlyArray<string>
+                : processStringToArray(currentFlavor?.volume ?? "")
+                ?? []}
+        />
+        {/*</Stack>*/}
     </DialogLayout>
 }
 

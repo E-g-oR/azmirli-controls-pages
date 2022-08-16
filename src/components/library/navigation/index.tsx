@@ -5,7 +5,7 @@ import {ROUTES} from "../../../utils/routing";
 import SpaIcon from "@mui/icons-material/Spa";
 import BlenderIcon from "@mui/icons-material/Blender";
 import SideMenu from "../side-menu";
-import useStoreMenu from "../../../stores/menu";
+import useStoreMenu from "../../../storage/menu";
 import BottomNavigation from "../bottom-navigation";
 import ShoppingBag from "@mui/icons-material/ShoppingBag";
 

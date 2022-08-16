@@ -4,7 +4,7 @@ import {BottomNavigationAction, Paper, Toolbar} from "@mui/material";
 import {MenuItem} from "../navigation";
 import {useLocation, useNavigate} from "react-router-dom";
 import {createPortal} from "react-dom";
-import {bottomNavigationId} from "../../../stores/menu";
+import {bottomNavigationId} from "../../../storage/menu";
 import {pipe} from "fp-ts/function";
 import * as A from "fp-ts/ReadonlyArray"
 import * as O from "fp-ts/Option"

@@ -17,7 +17,7 @@ import {
 import MuiDrawer from "@mui/material/Drawer"
 import {useNavigate, useLocation} from "react-router-dom";
 import CssBaseline from "@mui/material/CssBaseline";
-import {sideMenuId} from "../../../stores/menu";
+import {sideMenuId} from "../../../storage/menu";
 import {MenuItem} from "../navigation";
 import {createPortal} from "react-dom";
 

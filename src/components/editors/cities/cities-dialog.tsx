@@ -1,5 +1,5 @@
 import {FC, useCallback, useEffect, useMemo} from "react";
-import useStoreDialogCity from "../../../stores/dialog/cities-store";
+import useStoreDialogCity from "../../../storage/dialog/cities-store";
 import DialogLayout from "../../dialog/dialog";
 import {City, createRecord, IHPRecord, NewCity, updateRecord} from "thin-backend";
 import {Stack} from "@mui/material";
