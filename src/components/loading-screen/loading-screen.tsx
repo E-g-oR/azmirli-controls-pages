@@ -5,7 +5,7 @@ import {
     // Typography
 } from "@mui/material";
 import * as styles from "./loading-screen.css"
-import logo from "../../assets/img/logo_gold.png"
+import logo from "../../assets/img/logo_gold_305.png"
 
 const LoadingScreen: FC = () => {
     return <Paper

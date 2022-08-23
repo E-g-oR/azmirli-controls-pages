@@ -7,7 +7,7 @@ import TableRow from "../../library/table/table-row";
 import {DeleteOutlined, EditOutlined} from "@mui/icons-material";
 import FastActionButton from "../../library/fast-action-button";
 import useStoreFlavorsDialog from "../../../storage/dialog/flavors-store";
-import FlavorsEditDialog from "./dialog";
+import FlavorsEditDialog, {Sex, sexTranslate} from "./dialog";
 // import {useSnackbar} from "notistack";
 import useStoreCities from "../../../storage/cities";
 import {Navigate} from "react-router-dom";
@@ -155,7 +155,7 @@ const FlavorsEditor: FC = () => {
         key: "sex",
         header: "Пол",
         size: "max-content",
-        render: (v) => <span>{v.sex}</span>
+        render: (v) => <span>{sexTranslate[v.sex as Sex]}</span>
     }, {
         key: "cityName",
         header: "Города",
@@ -185,7 +185,11 @@ const FlavorsEditor: FC = () => {
             <Table config={config}>
                 {tableData}
             </Table>
-            <FastActionButton onClick={setCreateFlavor}/>
+            <FastActionButton onClick={() => {
+                console.log("click on FAB flavors")
+                setCreateFlavor()
+            }
+            }/>
             <FlavorsEditDialog onClose={onClose}/>
         </>
 }

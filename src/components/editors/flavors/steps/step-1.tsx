@@ -61,7 +61,7 @@ const Step1: FC<Props> = ({control}) => {
                     helperText={fieldState.error?.message}
                 />}
             />
-            <Stack direction={"row"} spacing={2}>
+            <Stack direction={{ xs: "column", sm: "row" }} spacing={2}>
                 <Controller
                     control={control}
                     name={"category"}
@@ -130,6 +130,7 @@ const Step1: FC<Props> = ({control}) => {
                     name={"articleNumber"}
                     render={({field, fieldState}) => <TextField
                         fullWidth
+                        sx={{minWidth: 100}}
                         label={"Артикул"}
                         title={"Артикул"}
                         placeholder={"777C"}

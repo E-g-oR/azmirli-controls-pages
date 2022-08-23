@@ -1,7 +1,7 @@
 import create from "zustand";
 import {StoreDialog} from "./cities-store";
-import {Flavor, UUID} from "thin-backend";
-import {IDsList} from "../../components/editors/flavors";
+import {Flavor} from "thin-backend";
+import {GroupedStores} from "../../components/editors/flavors/steps/step-2";
 
 interface FlavorsStore extends StoreDialog {
     flavor: Flavor | null,
@@ -23,8 +23,6 @@ const useStoreFlavorsDialog = create<FlavorsStore>((set) => ({
 
 export default useStoreFlavorsDialog
 
-type VolumesT = Record<UUID, Array<number>>
-
 export interface BaseData {
     articleNumber: string,
     brand: string,
@@ -45,12 +43,12 @@ interface CreateFlavorStore {
     currentStep: number,
     steps: ReadonlyArray<string>,
     setCurrentStep: (step: number) => void,
-    baseData: Partial<BaseData>,
-    setData: (data: Partial<BaseData>) => void,
-    stores: IDsList,
-    setStores: (list: IDsList) => void,
-    volumes: VolumesT,
-    setVolumes: (volumes: VolumesT) => void,
+    baseData: BaseData,
+    setData: (baseData: BaseData) => void,
+    // stores: IDsList,
+    // setStores: (list: IDsList) => void,
+    selectedStores: GroupedStores,
+    setSelectedStores: (stores: GroupedStores) => void,
     goNext: () => void,
     goBack: () => void,
 }
@@ -59,15 +57,15 @@ export const useStoreCreateFlavor = create<CreateFlavorStore>((set, get) => ({
     baseData: defaultBaseData,
     steps: ["Общие данные", "Доступные магазины", "Доступные объеы"],
     currentStep: 0,
-    setData: data => set({baseData: {...data}}),
-    stores: [],
-    setStores: stores => set({stores}),
-    volumes: {},
-    setVolumes: volumes => set({volumes}),
+    setData: baseData => set({baseData}),
+    // stores: [],
+    // setStores: stores => set({stores}),
+    selectedStores: {},
+    setSelectedStores: selectedStores => set({selectedStores}),
     setCurrentStep: currentStep => set({currentStep}),
     goNext: () => {
-        const {currentStep, steps} = get()
-        return currentStep < steps.length && set({currentStep: currentStep + 1})
+        const {currentStep, steps, setCurrentStep} = get()
+        return currentStep < steps.length && setCurrentStep(currentStep + 1)
     },
     goBack: () => {
         const currentStep = get().currentStep
