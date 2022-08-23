@@ -6,10 +6,6 @@ import * as A from "fp-ts/ReadonlyArray"
 import * as S from "fp-ts/string"
 import * as O from "fp-ts/Option"
 import {useForm} from "react-hook-form"
-import Stepper from "@mui/material/Stepper"
-import Step from "@mui/material/Step"
-import StepLabel from "@mui/material/StepLabel"
-import Stack from "@mui/joy/Stack";
 import {match} from "ts-pattern";
 import Step1 from "./steps/step-1";
 import Typography from "@mui/joy/Typography";
@@ -23,6 +19,7 @@ import Step3 from "./steps/step-3";
 import * as RR from "fp-ts/es6/ReadonlyRecord"
 import {Mode} from "../../../storage/dialog/cities-store";
 import {UUID} from "thin-backend";
+import {MobileStepper} from "@mui/material";
 
 // const createFlavor = (newFlavor: NewFlavor) => () => createRecord("flavors", newFlavor)
 // const editFlavor = (flavor: Flavor) => () => updateRecord("flavors", flavor.id, flavor)
@@ -168,23 +165,26 @@ const FlavorsEditDialog: FC<Props> = ({onClose}) => {
 
     // const submit = useCallback
 
-    const actions = useMemo(() => <Stack
-        direction={"row"}
+    const actions = useMemo(() => <MobileStepper
+        steps={steps.length}
+        activeStep={currentStep}
         sx={{
-            justifyContent: "space-between",
             width: "100%",
-            marginX: 2,
+            marginX: 1,
         }}
-    >
-        <IconButton
-            color={"neutral"}
-            variant={"outlined"}
-            disabled={currentStep === 0}
-            onClick={goBack}
-        >
-            <ChevronLeft/>
-        </IconButton>
-        {
+        position={"static"}
+        variant={"progress"}
+        backButton={
+            <IconButton
+                color={"neutral"}
+                variant={"outlined"}
+                disabled={currentStep === 0}
+                onClick={goBack}
+            >
+                <ChevronLeft/>
+            </IconButton>
+        }
+        nextButton={
             match(currentStep)
                 .with(0, () => <IconButton onClick={handleSubmitBaseData((data) => {
                     setBaseData(data)
@@ -202,7 +202,7 @@ const FlavorsEditDialog: FC<Props> = ({onClose}) => {
                 .otherwise(() => null)
         }
 
-    </Stack>, [currentStep, handleSubmitBaseData, handleSubmitStores])
+    />, [currentStep, handleSubmitBaseData, handleSubmitStores])
 
     return <DialogLayout
         isOpen={isOpen}
@@ -218,14 +218,12 @@ const FlavorsEditDialog: FC<Props> = ({onClose}) => {
         title={title}
         actions={actions}
     >
-        <Stepper activeStep={currentStep}>
-            {
-                steps.map(stepName => <Step key={stepName}>
-                    <StepLabel>{stepName}</StepLabel>
-                </Step>)
-            }
-        </Stepper>
+
         <AnimatePresence>
+            <Typography
+                fontWeight={"bold"}
+                key={"step_name"}
+            > {currentStep + 1}. {steps[currentStep] ?? "Вы вышли за пределы"}</Typography>
             {
                 match(currentStep)
                     .with(0, () => <Step1 control={baseDataControl}/>)
