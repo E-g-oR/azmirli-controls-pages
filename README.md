@@ -6,15 +6,12 @@ Easy way to create/edit flavors, add new stores or edit any company's informatio
 
 ## TODO
 
-- responsive flavor dialog
-- process "articleNumber" in flavors dialog
-- make multiply stores in each city
 - change flow of create flavor (add step of changing flavor volumes in every store)
 - implement editors:
-    - stores
     - brands
     - recipes
 - add "confirm delete" dialog
-- add loading screen
+- реализовать редактирование ароматов
+(нужно собрать данные и записать GroupedStores в стор, чтобы можно было извлечь данные о магазинах)
 
 [//]: # (- realise ProtectedComponent)

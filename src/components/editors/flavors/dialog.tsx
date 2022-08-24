@@ -75,12 +75,6 @@ export const processStringToArray = (input: string | Array<string>): ReadonlyArr
     )
 )
 
-// interface PreparedData extends BaseData {
-//     cityId: UUID,
-//     storeId: UUID,
-//     volume: string,     // postgres array literal
-// }
-
 const getPreparedData = (baseData: BaseData, cityId: UUID, simpleStore: SimpleStore): NewFlavor => ({
     ...baseData,
     cityId,
