@@ -17,7 +17,7 @@ import {IDsList} from "../index";
 import Grid2 from "@mui/material/Unstable_Grid2";
 import {useStoreCreateFlavor} from "../../../../storage/dialog/flavors-store";
 
-const getStoreAddress = (store: Store) => `${store.streetType} ${store.streetName} ${store.building}`
+export const getStoreAddress = (store: Store) => `${store.streetType} ${store.streetName} ${store.building}`
 
 // TODO move somewhere
 export const defaultVolumes = ["30", "50", "100"]

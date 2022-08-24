@@ -1,6 +1,10 @@
 import {FC, useCallback, useEffect, useMemo, useState} from "react";
 import DialogLayout from "../../dialog/dialog";
-import useStoreFlavorsDialog, {BaseData, useStoreCreateFlavor} from "../../../storage/dialog/flavors-store";
+import useStoreFlavorsDialog, {
+    BaseData,
+    defaultBaseData,
+    useStoreCreateFlavor
+} from "../../../storage/dialog/flavors-store";
 import {pipe} from "fp-ts/es6/function"
 import * as A from "fp-ts/ReadonlyArray"
 import * as S from "fp-ts/string"
@@ -18,13 +22,12 @@ import Step3 from "./steps/step-3";
 
 import * as RR from "fp-ts/es6/ReadonlyRecord"
 import {Mode} from "../../../storage/dialog/cities-store";
-import {UUID} from "thin-backend";
+import {createRecord, NewFlavor, UUID} from "thin-backend";
 import {MobileStepper} from "@mui/material";
+import {useSnackbar} from "notistack";
 
-// const createFlavor = (newFlavor: NewFlavor) => () => createRecord("flavors", newFlavor)
-// const editFlavor = (flavor: Flavor) => () => updateRecord("flavors", flavor.id, flavor)
+const createFlavor = (newFlavor: NewFlavor) => () => createRecord("flavors", newFlavor)
 
-// Promise.
 interface Props {
     onClose: () => void,
 }
@@ -37,9 +40,6 @@ export const sexTranslate: Record<Sex, SexRussian> = {
     men: "мужской",
     unisex: "унисекс",
 }
-
-// type ArticleNumber = `${number}${string}`
-
 
 type Category = "lux" | "selective" | "exclusive"
 export const categoryValues: ReadonlyArray<Category> = ["lux", "exclusive", "selective"] as const
@@ -75,13 +75,13 @@ export const processStringToArray = (input: string | Array<string>): ReadonlyArr
     )
 )
 
-interface PreparedData extends BaseData {
-    cityId: UUID,
-    storeId: UUID,
-    volume: string,     // postgres array literal
-}
+// interface PreparedData extends BaseData {
+//     cityId: UUID,
+//     storeId: UUID,
+//     volume: string,     // postgres array literal
+// }
 
-const getPreparedData = (baseData: BaseData, cityId: UUID, simpleStore: SimpleStore): PreparedData => ({
+const getPreparedData = (baseData: BaseData, cityId: UUID, simpleStore: SimpleStore): NewFlavor => ({
     ...baseData,
     cityId,
     storeId: simpleStore.storeId,
@@ -90,30 +90,46 @@ const getPreparedData = (baseData: BaseData, cityId: UUID, simpleStore: SimpleSt
 
 type FlavorEntry = readonly [cityId: UUID, simpleStores: ReadonlyArray<SimpleStore>]
 const modifyFlavorsEntry = (baseData: BaseData) =>
-    ([cityId, simpleStores]: FlavorEntry): ReadonlyArray<PreparedData> =>
+    ([cityId, simpleStores]: FlavorEntry): ReadonlyArray<NewFlavor> =>
         pipe(
             simpleStores,
             A.map(simpleStore => getPreparedData(baseData, cityId, simpleStore))
         )
 
-// const modifySimpleStores = (simpleStores)
-const onSubmit = (mode: Mode, baseData: BaseData, editedFlavors: GroupedStores) => {
-    if (mode === "create") {
-        const data = pipe(
-            editedFlavors,
-            RR.toEntries,
-            A.map(modifyFlavorsEntry(baseData)),
-            A.flatten,
-        )
-        console.log(data)
-    } else {
-        console.error("not implemented yet")
-    }
-}
+// TODO simplify logic ( too big function, too much arguments)
+const onSubmit =
+    (mode: Mode, baseData: BaseData, editedFlavors: GroupedStores) =>
+        (onSuccess: () => void, onError: (err?: string) => void) => {
+            const data = pipe(
+                editedFlavors,
+                RR.toEntries,
+                A.map(modifyFlavorsEntry(baseData)),
+                A.flatten,
+            )
+            if (mode === "create") {
+                const requests = pipe(
+                    data,
+                    A.map(newFlavor => createFlavor(newFlavor)) // TODO make sure if we need that nested " ()=> " thing
+                )
+                Promise.all(requests.map(request => request()))
+                    .then(() => {
+                        onSuccess()
+                    })
+                    .catch(err => {
+                        onError(err)
+                    })
+            } else {
+                console.error("not implemented yet")
+            }
+        }
 
 const FlavorsEditDialog: FC<Props> = ({onClose}) => {
+    const {enqueueSnackbar} = useSnackbar()
+
     const isOpen = useStoreFlavorsDialog(state => state.isOpen)
     const mode = useStoreFlavorsDialog(state => state.mode)
+
+
     const currentFlavor = useStoreFlavorsDialog(state => state.flavor)
 
     const baseData = useStoreCreateFlavor(state => state.baseData)
@@ -132,8 +148,10 @@ const FlavorsEditDialog: FC<Props> = ({onClose}) => {
 
     const currentStep = useStoreCreateFlavor(state => state.currentStep)
     const steps = useStoreCreateFlavor(state => state.steps)
+    const setCurrentStep = useStoreCreateFlavor(state => state.setCurrentStep)
 
     const selectedStores = useStoreCreateFlavor(state => state.selectedStores)
+    const setSelectedStores = useStoreCreateFlavor(state => state.setSelectedStores)
 
     const [values, setValues] = useState<ReadonlyArray<string>>([])
 
@@ -149,6 +167,23 @@ const FlavorsEditDialog: FC<Props> = ({onClose}) => {
                     A.append(newValue)
                 )
         ), [setValues])
+
+    const handleClose = useCallback(() => {
+        onClose()
+        resetBaseData(defaultBaseData)
+        setCurrentStep(0)
+        setSelectedStores({})
+    }, [resetBaseData, setCurrentStep, onClose, setSelectedStores])
+
+    const onSuccess = useCallback(() => {
+        enqueueSnackbar(`Аромат был успешно ${mode === "create" ? "создан" : "изменён"}.`, {variant: "success"})
+        handleClose()
+    }, [mode, handleClose])
+
+    const onError = useCallback((error?: string) => {
+        enqueueSnackbar(`что-то пошло не так`, {variant: "error"})
+        error && enqueueSnackbar(error, {variant: "error"})
+    }, [])
 
     const handleSubmitStores = useCallback((onSuccess: () => void) => pipe(
         selectedStores,
@@ -197,21 +232,17 @@ const FlavorsEditDialog: FC<Props> = ({onClose}) => {
                 </IconButton>)
                 .with(2, () => <Button
                     variant={"solid"}
-                    onClick={() => onSubmit(mode, baseData, selectedStores)}
+                    onClick={() => onSubmit(mode, baseData, selectedStores)(onSuccess, onError)}
                 >Закончить</Button>)
                 .otherwise(() => null)
         }
 
-    />, [currentStep, handleSubmitBaseData, handleSubmitStores])
+    />, [currentStep, handleSubmitBaseData, handleSubmitStores, onSuccess, onError])
 
     return <DialogLayout
         isOpen={isOpen}
-        onClose={() => {
-            onClose()
-        }}
-        onCancel={() => {
-            onClose()
-        }}
+        onClose={handleClose}
+        onCancel={handleClose}
         onSubmit={() => {
             console.log("submit")
         }}

@@ -1,19 +1,18 @@
-import {FC, ReactNode, useEffect, useMemo} from "react";
+import {FC, ReactNode, useCallback, useEffect, useMemo} from "react";
 import {Stack, Tooltip, Typography} from "@mui/material";
 import {useQuery} from "thin-backend-react";
-import {Flavor, query, UUID} from "thin-backend";
+import { deleteRecords, Flavor, query, Store, UUID} from "thin-backend";
 import Table, {Config} from "../../library/table";
 import TableRow from "../../library/table/table-row";
 import {DeleteOutlined, EditOutlined} from "@mui/icons-material";
 import FastActionButton from "../../library/fast-action-button";
-import useStoreFlavorsDialog from "../../../storage/dialog/flavors-store";
-import FlavorsEditDialog, {Sex, sexTranslate} from "./dialog";
-// import {useSnackbar} from "notistack";
+import useStoreFlavorsDialog, {useStoreCreateFlavor} from "../../../storage/dialog/flavors-store";
+import FlavorsEditDialog, {processStringToArray, Sex, sexTranslate} from "./dialog";
 import useStoreCities from "../../../storage/cities";
 import {Navigate} from "react-router-dom";
 import {ROUTES} from "../../../utils/routing";
 import IconButton from "@mui/joy/IconButton";
-import {pipe} from "fp-ts/es6/function";
+import {flow, pipe} from "fp-ts/es6/function";
 import Chip from "@mui/joy/Chip"
 import Grid2 from "@mui/material/Unstable_Grid2";
 import * as A from "fp-ts/es6/ReadonlyArray"
@@ -21,17 +20,32 @@ import * as RNEA from "fp-ts/es6/ReadonlyNonEmptyArray"
 import * as RR from "fp-ts/es6/ReadonlyRecord"
 import * as O from "fp-ts/es6/Option"
 import useStoreStoresStorage from "../../../storage/stores-storage";
+import {getStoreAddress, GroupedStores} from "./steps/step-2";
+import {useSnackbar} from "notistack";
 
-// const deleteFlavor = (id: UUID) => deleteRecord("flavors", id)
+type DeleteFlavors = (
+    articleNumber: string,
+    onSuccess: () => void,
+    onError: (err?: string) => void,
+) => Promise<void>
+const deleteFlavors: DeleteFlavors = async (articleNumber, onSuccess, onError) => {
+    const flavorsIDs = await query("flavors")
+        .where("articleNumber", articleNumber)
+        .select("id")
+        .fetch()
 
+    deleteRecords(
+        "flavors",
+        pipe(
+            flavorsIDs,
+            A.map(({id}) => id)
+        ) as string[]
+    )
+        .then(() => onSuccess())
+        .catch(onError)
+}
 
 export type IDsList = ReadonlyArray<UUID>
-
-const getCitiesIDs = (flavors: RNEA.ReadonlyNonEmptyArray<Flavor>): IDsList => pipe(
-    flavors,
-    A.map(({cityId}) => O.fromNullable(cityId)),
-    A.compact,
-)
 
 const getStoresIDs = (flavors: RNEA.ReadonlyNonEmptyArray<Flavor>): IDsList => pipe(
     flavors,
@@ -39,63 +53,94 @@ const getStoresIDs = (flavors: RNEA.ReadonlyNonEmptyArray<Flavor>): IDsList => p
     A.compact,
 )
 
+
 export interface GroupedFlavor {
     name: string,
     brand: string,
     category: string,
     sex: string,
     articleNumber: string,
-    citiesIDs: IDsList,
-    storesIDs: IDsList,
+    stores: GroupedStores,
 }
 
+type GetStoreF = (id: UUID) => Store | undefined
 type GroupedFlavors = RR.ReadonlyRecord<string, GroupedFlavor>
-const groupFlavors = (flavors: ReadonlyArray<Flavor>): GroupedFlavors => pipe(
+const groupFlavors = (flavors: ReadonlyArray<Flavor>, getStore: GetStoreF): GroupedFlavors => pipe(
     flavors,
     RNEA.groupBy(flavor => flavor.articleNumber),
     RR.map(flavors_ => {
-        const {name, sex, category, brand, articleNumber} = RNEA.head(flavors_)
+        const {name, sex, category, brand, articleNumber, volume} = RNEA.head(flavors_)
         const storesIDs = getStoresIDs(flavors_)
-        const citiesIDs = getCitiesIDs(flavors_)
+        const stores: GroupedStores = pipe(
+            storesIDs,
+            A.map(flow(
+                getStore,
+                O.fromNullable,
+            )),
+            A.compact,
+
+            // TODO make separate multiporpousal function 👇
+            RNEA.groupBy(store => store.cityId),
+            RR.map(storesList => pipe(
+                storesList,
+                A.map((store) => ({
+                    storeId: store.id,
+                    address: getStoreAddress(store),
+                    volumes: processStringToArray(volume)
+                }))
+            ))
+        )
         const result: GroupedFlavor = {
             name,
             sex,
             category,
             brand,
             articleNumber,
-            citiesIDs,
-            storesIDs
+            stores,
         }
         return result
     })
 )
 
+const getTableData = (grouped: RR.ReadonlyRecord<string, GroupedFlavor>): ReadonlyArray<ReactNode> => pipe(
+    grouped,
+    RR.map(flavor => <TableRow key={flavor.articleNumber} row={flavor}/>),
+    RR.toReadonlyArray,
+    A.map(RNEA.tail),
+)
+
 const FlavorsEditor: FC = () => {
-    // const {enqueueSnackbar} = useSnackbar()
+    const {enqueueSnackbar} = useSnackbar()
 
     const flavors = useQuery(query("flavors"))
-
-    const grouped = useMemo(() => pipe(
-        flavors ?? [],
-        groupFlavors
-    ), [flavors])
-
-
-    const setStores = useStoreStoresStorage(state => state.setStores)
     const stores = useQuery(query("stores"))
 
     useEffect(() => {
-        setStores(stores)
+        setStores(stores ?? [])
     }, [stores])
 
-    // const onDeleteSuccess = () => {
-    //     enqueueSnackbar("Аромат был успешно удален.", {variant: "success"})
-    // }
-    // const onDeleteError = () => {
-    //     enqueueSnackbar("Не получилось удалить аромат ://", {variant: "error"})
-    // }
+    const getStoreById = useStoreStoresStorage(state => state.getStoreById)
 
+    const setSelectedStores = useStoreCreateFlavor(state => state.setSelectedStores)
+
+    const grouped = useMemo(() => flavors && groupFlavors(flavors, getStoreById), [flavors, stores, getStoreById])
+
+    const setStores = useStoreStoresStorage(state => state.setStores)
+
+
+    const setBaseData = useStoreCreateFlavor(state => state.setData)
+    const setMode = useStoreFlavorsDialog(state => state.setMode)
     const setIsOpen = useStoreFlavorsDialog(state => state.setIsOpen)
+
+    const onDeleteSuccess = () => {
+        enqueueSnackbar("Аромат был успешно удален.", {variant: "success"})
+    }
+    const onDeleteError = (error?: string) => {
+        enqueueSnackbar("Не получилось удалить аромат ://", {variant: "error"})
+        error && enqueueSnackbar(error, {variant: "error"})
+
+    }
+
     const setCreateFlavor = useStoreFlavorsDialog(state => state.setCreateFlavor)
     // const setEditFlavor = useStoreFlavorsDialog(state => state.setEditFlavor)
     const cities = useStoreCities(state => state.cities)
@@ -106,17 +151,25 @@ const FlavorsEditor: FC = () => {
         setIsOpen(false)
     }
 
+    const onEditClick = useCallback((groupedFlavor: GroupedFlavor) => {
+        const {name, sex, category, brand, articleNumber} = groupedFlavor
+        setBaseData({name, sex, category, brand, articleNumber})
+        setSelectedStores(groupedFlavor.stores)
+        setMode("edit")
+        setIsOpen(true)
+    }, [setBaseData, setMode, setIsOpen])
+
     const config: ReadonlyArray<Config<GroupedFlavor>> = useMemo(() => [{
         key: "actions",
         header: "Действия",
         size: "max-content",
-        render: () => <Stack
+        render: (v) => <Stack
             direction={"row"}
             spacing={1}
         >
             <Tooltip title={"Редактировать"}>
                 <IconButton
-                    // onClick={() => setEditFlavor(v)}
+                    onClick={() => onEditClick(v)}
                     variant={"plain"}
                 >
                     <EditOutlined/>
@@ -124,7 +177,7 @@ const FlavorsEditor: FC = () => {
             </Tooltip>
             <Tooltip title={"Удалить"}>
                 <IconButton
-                    // onClick={() => makeRequest(() => deleteFlavor(v.id), onDeleteSuccess, onDeleteError)}
+                    onClick={() => deleteFlavors(v.articleNumber, onDeleteSuccess, onDeleteError)}
                     variant={"plain"}
                 >
                     <DeleteOutlined/>
@@ -156,40 +209,39 @@ const FlavorsEditor: FC = () => {
         header: "Пол",
         size: "max-content",
         render: (v) => <span>{sexTranslate[v.sex as Sex]}</span>
-    }, {
-        key: "cityName",
-        header: "Города",
-        size: "max-content",
-        render: ({citiesIDs}) => <Grid2 container spacing={1}>
-            {
-                citiesIDs.map(cityId => <Grid2 key={cityId} xs={"auto"}>
-                    <Chip variant={"soft"}> {getCityById(cityId)?.name} </Chip>
-                </Grid2>)
-            }
-        </Grid2>
-    },], [cities, getCityById])
+    },
+        {
+            key: "cityName",
+            header: "Города",
+            size: "max-content",
+            render: ({stores}) => <Grid2 container spacing={1}>
+                {
+                    pipe(
+                        stores,
+                        RR.keys,
+                        A.map(cityId => <Grid2 key={cityId} xs={"auto"}>
+                            <Chip variant={"soft"}> {getCityById(cityId)?.name ?? "Неизвестный город"} </Chip>
+                        </Grid2>)
+                    )
+                }
+            </Grid2>
+        },
+    ], [cities, getCityById, onEditClick])
 
     const goAway = false
 
-    // TODO move function out of the component
-    const tableData: ReadonlyArray<ReactNode> = useMemo(() => pipe(
-        grouped,
-        RR.map(flavor => <TableRow key={flavor.articleNumber} row={flavor}/>),
-        RR.toReadonlyArray,
-        A.map(RNEA.tail),
-    ), [grouped])
+    // const tableData = useMemo(() => getTableData(grouped), [grouped])
 
     return goAway ? <Navigate to={ROUTES.notFound}/>
         : <>
             <Typography variant={"h3"} sx={{paddingBottom: 2}}>Редактор ароматов</Typography>
             <Table config={config}>
-                {tableData}
+                {getTableData(grouped ?? {})}
             </Table>
-            <FastActionButton onClick={() => {
-                console.log("click on FAB flavors")
-                setCreateFlavor()
-            }
-            }/>
+
+            {/* TODO обнулять стейт для создания нового аромата */}
+            <FastActionButton onClick={setCreateFlavor}/>
+
             <FlavorsEditDialog onClose={onClose}/>
         </>
 }

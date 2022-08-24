@@ -2,13 +2,14 @@ import {FC, useEffect, Suspense, lazy} from 'react'
 import 'thin-backend-react/auth.css'
 import useStoreCities from "./storage/cities";
 import {useQuery} from "thin-backend-react";
-import {query, } from "thin-backend";
+import {query,} from "thin-backend";
 import {Navigate, Route, Routes} from "react-router-dom";
 import {ROUTES} from "./utils/routing";
 // import AppLayout from "./components/library/layouts/app-layout";
 import LoadingScreen from "./components/loading-screen/loading-screen";
 import {AnimatePresence} from "framer-motion";
 import {motion} from "framer-motion"
+import useStoreStoresStorage from "./storage/stores-storage";
 // import ProtectedComponent from "./components/library/protected-component/protected-component";
 
 const AppLayout = lazy(() => import("./components/library/layouts/app-layout"))
@@ -21,12 +22,18 @@ const StoresEditor = lazy(() => import("./components/editors/stores/stores-table
 
 const App: FC = () => {
     const setCities = useStoreCities(state => state.setCities)
+    const setStores = useStoreStoresStorage(state => state.setStores)
 
     const requestCities = useQuery(query("cities"))
+    const stores = useQuery(query("stores"))
 
     useEffect(() => {
         setCities(requestCities)
     }, [requestCities, setCities])
+
+    useEffect(() => {
+        setStores(stores ?? [])
+    }, [stores, setStores])
 
     return <>
         <AnimatePresence>
@@ -41,7 +48,7 @@ const App: FC = () => {
                             {/*<Route path={ROUTES.root} element={<ProtectedComponent>*/}
                             {/*    <AppLayout/>*/}
                             {/*</ProtectedComponent>}>*/}
-                            <Route index element={<Navigate to={ROUTES.cities} />}/>
+                            <Route index element={<Navigate to={ROUTES.cities}/>}/>
                             <Route path={ROUTES.cities} element={<CitiesEditor/>}/>
                             <Route path={ROUTES.flavors} element={<FlavorsEditor/>}/>
                             <Route path={ROUTES.stores} element={<StoresEditor/>}/>
