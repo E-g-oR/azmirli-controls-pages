@@ -1,7 +1,7 @@
 import {FC, ReactNode, useCallback, useEffect, useMemo} from "react";
 import {Stack, Tooltip, Typography} from "@mui/material";
 import {useQuery} from "thin-backend-react";
-import { deleteRecords, Flavor, query, Store, UUID} from "thin-backend";
+import {deleteRecords, Flavor, query, Store, UUID} from "thin-backend";
 import Table, {Config} from "../../library/table";
 import TableRow from "../../library/table/table-row";
 import {DeleteOutlined, EditOutlined} from "@mui/icons-material";
@@ -20,7 +20,7 @@ import * as RNEA from "fp-ts/es6/ReadonlyNonEmptyArray"
 import * as RR from "fp-ts/es6/ReadonlyRecord"
 import * as O from "fp-ts/es6/Option"
 import useStoreStoresStorage from "../../../storage/stores-storage";
-import {getStoreAddress, GroupedStores} from "./steps/step-2";
+import {defaultVolumes, getStoreAddress, GroupedStores} from "./steps/step-2";
 import {useSnackbar} from "notistack";
 
 type DeleteFlavors = (
@@ -53,6 +53,11 @@ const getStoresIDs = (flavors: RNEA.ReadonlyNonEmptyArray<Flavor>): IDsList => p
     A.compact,
 )
 
+const getFlavorsIDs = (flavors: RNEA.ReadonlyNonEmptyArray<Flavor>): IDsList => pipe(
+    flavors,
+    A.map(({id}) => id),
+)
+
 
 export interface GroupedFlavor {
     name: string,
@@ -61,7 +66,17 @@ export interface GroupedFlavor {
     sex: string,
     articleNumber: string,
     stores: GroupedStores,
+    IDs: IDsList
 }
+
+const getVolumeByStoreId = (storeId: UUID, flavors: ReadonlyArray<Flavor>) => pipe(
+    flavors,
+    A.findFirst(flavor => flavor.storeId === storeId),
+    O.foldW(
+        () => defaultVolumes,
+        ({volume}) => processStringToArray(volume)
+    )
+)
 
 type GetStoreF = (id: UUID) => Store | undefined
 type GroupedFlavors = RR.ReadonlyRecord<string, GroupedFlavor>
@@ -69,8 +84,10 @@ const groupFlavors = (flavors: ReadonlyArray<Flavor>, getStore: GetStoreF): Grou
     flavors,
     RNEA.groupBy(flavor => flavor.articleNumber),
     RR.map(flavors_ => {
-        const {name, sex, category, brand, articleNumber, volume} = RNEA.head(flavors_)
+        const {name, sex, category, brand, articleNumber} = RNEA.head(flavors_)
         const storesIDs = getStoresIDs(flavors_)
+        const flavorsIDs = getFlavorsIDs(flavors_)
+
         const stores: GroupedStores = pipe(
             storesIDs,
             A.map(flow(
@@ -86,7 +103,7 @@ const groupFlavors = (flavors: ReadonlyArray<Flavor>, getStore: GetStoreF): Grou
                 A.map((store) => ({
                     storeId: store.id,
                     address: getStoreAddress(store),
-                    volumes: processStringToArray(volume)
+                    volumes: getVolumeByStoreId(store.id, flavors_)
                 }))
             ))
         )
@@ -97,6 +114,7 @@ const groupFlavors = (flavors: ReadonlyArray<Flavor>, getStore: GetStoreF): Grou
             brand,
             articleNumber,
             stores,
+            IDs: flavorsIDs
         }
         return result
     })
@@ -122,6 +140,7 @@ const FlavorsEditor: FC = () => {
     const getStoreById = useStoreStoresStorage(state => state.getStoreById)
 
     const setSelectedStores = useStoreCreateFlavor(state => state.setSelectedStores)
+    const setFlavorsIDs = useStoreCreateFlavor(state => state.setFlavorsIDs)
 
     const grouped = useMemo(() => flavors && groupFlavors(flavors, getStoreById), [flavors, stores, getStoreById])
 
@@ -152,10 +171,11 @@ const FlavorsEditor: FC = () => {
     }
 
     const onEditClick = useCallback((groupedFlavor: GroupedFlavor) => {
-        const {name, sex, category, brand, articleNumber} = groupedFlavor
+        const {name, sex, category, brand, articleNumber, stores, IDs} = groupedFlavor
         setBaseData({name, sex, category, brand, articleNumber})
-        setSelectedStores(groupedFlavor.stores)
+        setSelectedStores(stores)
         setMode("edit")
+        setFlavorsIDs(IDs)
         setIsOpen(true)
     }, [setBaseData, setMode, setIsOpen])
 

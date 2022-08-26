@@ -1,4 +1,4 @@
-import {FC, useState} from "react";
+import {FC, useEffect, useState} from "react";
 import Typography from "@mui/joy/Typography";
 import {useStoreCreateFlavor} from "../../../../storage/dialog/flavors-store";
 import useStoreCities from "../../../../storage/cities";
@@ -17,6 +17,7 @@ import Checkboxes from "../../../library/input/checkbox";
 const Step3: FC = () => {
     const selectedStores = useStoreCreateFlavor(state => state.selectedStores)
     const getCityById = useStoreCities(state => state.getCityById)
+    const changeVolumes = useStoreCreateFlavor(state => state.changeVolumes)
 
     return <motion.div
         initial={{opacity: 0}}
@@ -72,6 +73,10 @@ const Step3: FC = () => {
                                                     A.append(value)
                                                 )
                                         )
+
+                                        useEffect(() => {
+                                            changeVolumes(storeId, values)
+                                        }, [values])
 
                                         return <Box
                                             key={storeId}

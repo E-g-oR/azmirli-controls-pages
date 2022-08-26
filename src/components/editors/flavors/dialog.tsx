@@ -1,4 +1,4 @@
-import {FC, useCallback, useEffect, useMemo, useState} from "react";
+import {FC, useCallback, useEffect, useMemo} from "react";
 import DialogLayout from "../../dialog/dialog";
 import useStoreFlavorsDialog, {
     BaseData,
@@ -22,11 +22,14 @@ import Step3 from "./steps/step-3";
 
 import * as RR from "fp-ts/es6/ReadonlyRecord"
 import {Mode} from "../../../storage/dialog/cities-store";
-import {createRecord, NewFlavor, UUID} from "thin-backend";
+import {createRecord, Flavor, NewFlavor, updateRecord, UUID} from "thin-backend";
 import {MobileStepper} from "@mui/material";
 import {useSnackbar} from "notistack";
+import {IDsList} from "./index";
 
 const createFlavor = (newFlavor: NewFlavor) => () => createRecord("flavors", newFlavor)
+const editFlavor = (flavor: Flavor) => () => updateRecord("flavors", flavor.id, flavor)
+
 
 interface Props {
     onClose: () => void,
@@ -92,29 +95,41 @@ const modifyFlavorsEntry = (baseData: BaseData) =>
 
 // TODO simplify logic ( too big function, too much arguments)
 const onSubmit =
-    (mode: Mode, baseData: BaseData, editedFlavors: GroupedStores) =>
-        (onSuccess: () => void, onError: (err?: string) => void) => {
+    (mode: Mode, baseData: BaseData, editedFlavors: GroupedStores, flavorsIDs: IDsList) =>
+        (
+            onSuccess: () => void,
+            onError: (err?: string) => void
+        ) => {
             const data = pipe(
                 editedFlavors,
                 RR.toEntries,
                 A.map(modifyFlavorsEntry(baseData)),
                 A.flatten,
             )
+
+            let requests: ReadonlyArray<() => Promise<Flavor>>
             if (mode === "create") {
-                const requests = pipe(
+                requests = pipe(
                     data,
-                    A.map(newFlavor => createFlavor(newFlavor)) // TODO make sure if we need that nested " ()=> " thing
+                    A.map(newFlavor => createFlavor(newFlavor))
                 )
-                Promise.all(requests.map(request => request()))
-                    .then(() => {
-                        onSuccess()
-                    })
-                    .catch(err => {
-                        onError(err)
-                    })
             } else {
-                console.error("not implemented yet")
+                requests = pipe(
+                    data,
+                    A.zip(flavorsIDs),
+                    A.map(([flavor, flavorId]) => ({...flavor, id: flavorId}) as Flavor),
+                    A.map(editFlavor)
+                )
             }
+
+            Promise.all(requests.map(request => request()))
+                .then(() => {
+                    onSuccess()
+                })
+                .catch(err => {
+                    console.log(err)
+                    onError()
+                })
         }
 
 const FlavorsEditDialog: FC<Props> = ({onClose}) => {
@@ -147,26 +162,16 @@ const FlavorsEditDialog: FC<Props> = ({onClose}) => {
     const selectedStores = useStoreCreateFlavor(state => state.selectedStores)
     const setSelectedStores = useStoreCreateFlavor(state => state.setSelectedStores)
 
-    const [values, setValues] = useState<ReadonlyArray<string>>([])
+    const flavorsIDs = useStoreCreateFlavor(state => state.flavorsIDs)
+    const setFlavorsIDs = useStoreCreateFlavor(state => state.setFlavorsIDs)
 
-    const handleChange = useCallback((newValue: string) =>
-        setValues(prevState =>
-            prevState.some(item => item === newValue) ?
-                pipe(
-                    prevState,
-                    A.filter(item => item !== newValue)
-                )
-                : pipe(
-                    prevState,
-                    A.append(newValue)
-                )
-        ), [setValues])
 
     const handleClose = useCallback(() => {
         onClose()
         resetBaseData(defaultBaseData)
         setCurrentStep(0)
         setSelectedStores({})
+        setFlavorsIDs([])
     }, [resetBaseData, setCurrentStep, onClose, setSelectedStores])
 
     const onSuccess = useCallback(() => {
@@ -226,7 +231,7 @@ const FlavorsEditDialog: FC<Props> = ({onClose}) => {
                 </IconButton>)
                 .with(2, () => <Button
                     variant={"solid"}
-                    onClick={() => onSubmit(mode, baseData, selectedStores)(onSuccess, onError)}
+                    onClick={() => onSubmit(mode, baseData, selectedStores, flavorsIDs)(onSuccess, onError)}
                 >Закончить</Button>)
                 .otherwise(() => null)
         }
@@ -252,7 +257,7 @@ const FlavorsEditDialog: FC<Props> = ({onClose}) => {
             {
                 match(currentStep)
                     .with(0, () => <Step1 control={baseDataControl}/>)
-                    .with(1, () => <Step2 selected={values} onChange={handleChange} setValues={setValues}/>)
+                    .with(1, () => <Step2/>)
                     .with(2, () => <Step3/>)
                     .otherwise(() => <Typography>Вы вышли за пределы</Typography>)
             }

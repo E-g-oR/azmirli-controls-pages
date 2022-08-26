@@ -1,4 +1,4 @@
-import {FC, useEffect, useMemo} from "react";
+import {FC, useCallback, useEffect, useMemo, useState} from "react";
 import {motion} from "framer-motion"
 import useStoreStoresStorage from "../../../../storage/stores-storage";
 import {Store, UUID} from "thin-backend";
@@ -20,7 +20,7 @@ import {useStoreCreateFlavor} from "../../../../storage/dialog/flavors-store";
 export const getStoreAddress = (store: Store) => `${store.streetType} ${store.streetName} ${store.building}`
 
 // TODO move somewhere
-export const defaultVolumes = ["30", "50", "100"]
+export const defaultVolumes: ReadonlyArray<string> = ["30", "50", "100"]
 
 export interface SimpleStore {
     storeId: UUID,
@@ -39,7 +39,7 @@ const getGroupedStores = (stores: ReadonlyArray<Store>): GroupedStores => pipe(
     }))),
 )
 
-const getAllStoresIDs = (grouped: GroupedStores): IDsList => pipe(
+export const getAllStoresIDs = (grouped: GroupedStores): IDsList => pipe(
     grouped,
     // TODO move next line to common function "getGroupedStores"
     RR.toEntries,
@@ -52,29 +52,52 @@ const getAllStoresIDs = (grouped: GroupedStores): IDsList => pipe(
     A.flatten,
 )
 
-const getSelectedStores = (allStoresGrouped: GroupedStores, selectedStores: IDsList) => pipe(
+const getSelectedStores = (allStoresGrouped: GroupedStores, selectedStores: IDsList, getVolumes: (id: string) => ReadonlyArray<string>) => pipe(
     allStoresGrouped,
     RR.map(flow(
-        A.filter(simpleStore => selectedStores.includes(simpleStore.storeId))
+        A.filter(simpleStore => selectedStores.includes(simpleStore.storeId)),
+        A.map(simpleStore => ({
+            ...simpleStore,
+            volumes: getVolumes(simpleStore.storeId)
+        }))
     )),
     RR.filter(stores => !!stores.length)
 )
 
 interface Props {
-    selected: IDsList,
-    onChange: (storeId: UUID) => void,
-    setValues: (values: IDsList) => void,
+    selected?: IDsList,
+    onChange?: (storeId: UUID) => void,
+    setValues?: (values: IDsList) => void,
 }
 
-const Step2: FC<Props> = ({selected, onChange, setValues}) => {
+const Step2: FC<Props> = () => {
     const getCityById = useStoreCities(state => state.getCityById)
-    const stores = useStoreStoresStorage(state => state.stores)
-    const allGrouped = useMemo(() => stores ? getGroupedStores(stores) : {}, [stores])
-    const allValues = useMemo(() => getAllStoresIDs(allGrouped), [allGrouped])
+    const allStores: ReadonlyArray<Store> = useStoreStoresStorage(state => state.stores)
 
+    const initialStoresState: GroupedStores = useStoreCreateFlavor(state => state.selectedStores)
     const setSelectedStores = useStoreCreateFlavor(state => state.setSelectedStores)
 
-    const selectedGrouped = useMemo(() => getSelectedStores(allGrouped, selected), [allGrouped, selected])
+    const getVolumesByStoreId = useStoreCreateFlavor(state => state.getVolumesById)
+
+    const allStoresGrouped: GroupedStores = useMemo(() => allStores ? getGroupedStores(allStores) : {}, [allStores]) // все магазины, сгруппированные по cityId
+    const allValues: IDsList = useMemo(() => getAllStoresIDs(allStoresGrouped), [allStoresGrouped]) // список ID всех магазинов
+
+    const [selected, setSelected] = useState(getAllStoresIDs(initialStoresState))
+
+    const handleChange = useCallback((newValue: string) =>
+        setSelected(prevState =>
+            prevState.some(item => item === newValue) ?
+                pipe(
+                    prevState,
+                    A.filter(item => item !== newValue)
+                )
+                : pipe(
+                    prevState,
+                    A.append(newValue)
+                )
+        ), [setSelected])
+
+    const selectedGrouped = useMemo(() => getSelectedStores(allStoresGrouped, selected, getVolumesByStoreId), [allStoresGrouped, selected])
 
     useEffect(() => {
         setSelectedStores(selectedGrouped)
@@ -94,7 +117,7 @@ const Step2: FC<Props> = ({selected, onChange, setValues}) => {
                 <Checkbox
                     label={"Выбрать все"}
                     checked={allValues.every(value => selected.includes(value))}
-                    onChange={({target: {checked}}) => setValues(checked ? allValues : [])}
+                    onChange={({target: {checked}}) => setSelected(checked ? allValues : [])}
                 />
             </Sheet>
             <Sheet
@@ -108,7 +131,7 @@ const Step2: FC<Props> = ({selected, onChange, setValues}) => {
                 <List>
                     {
                         pipe(
-                            allGrouped,
+                            allStoresGrouped,
                             RR.toEntries,
                             A.map(([cityId, simpleStores]) => <ListItem nested key={cityId}>
                                 <ListItem
@@ -149,7 +172,7 @@ const Step2: FC<Props> = ({selected, onChange, setValues}) => {
                                                     disableIcon
                                                     overlay
                                                     checked={checked}
-                                                    onChange={() => onChange(storeId)}
+                                                    onChange={() => handleChange(storeId)}
                                                 />
                                             </Chip>
                                         })

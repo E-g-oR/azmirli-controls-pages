@@ -13,5 +13,7 @@ Easy way to create/edit flavors, add new stores or edit any company's informatio
 - add "confirm delete" dialog
 - реализовать редактирование ароматов
 (нужно собрать данные и записать GroupedStores в стор, чтобы можно было извлечь данные о магазинах)
+- разобраться, почему в результате успешной записи в базу, не закрывается диалог
+- передилать систему диалогов, сделать одинаковым открытие и закрытие
 
 [//]: # (- realise ProtectedComponent)
