@@ -1,0 +1,1 @@
+import{ag as e,C as a}from"./index.aac1386d.js";import{o}from"./IconButton.1a5f5d92.js";const r=e(),t=o({defaultTheme:r,defaultClassName:"MuiBox-root",generateClassName:a.generate});var l=t;export{l as B};
