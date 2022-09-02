@@ -1,1 +1,0 @@
-import{W as e,C as a}from"./index.070e2350.js";import{c as o}from"./createBox.911b62f2.js";const r=e(),t=o({defaultTheme:r,defaultClassName:"MuiBox-root",generateClassName:a.generate});var c=t;export{c as B};
