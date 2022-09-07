@@ -1,0 +1,1 @@
+import{j as u,F as r}from"./index.605d8d15.js";import{T as t}from"./Typography.770c5cb5.js";const a=()=>u(r,{children:u(t,{level:"h3",children:"\u042D\u0442\u0430 \u0441\u0435\u043A\u0446\u0438\u044F \u043F\u043E\u043A\u0430 \u043D\u0435 \u0440\u0435\u0430\u043B\u0438\u0437\u043E\u0432\u0430\u043D\u0430"})});export{a as default};
